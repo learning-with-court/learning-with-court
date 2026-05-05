@@ -79,6 +79,7 @@ Once two workshops are deployed, the bottleneck moves from "can we build the pla
 - **Telemetry**: per-lesson completion times, drop-off rates, common errors. Built into the SessionMiddleware from day 1.
 - **Cohort management**: enrollment, group progress views, instructor-side dashboards. Probably v2.
 - **Content authoring ergonomics**: how does a workshop author add a lesson without becoming a CDK expert? Maybe a CLI: `npx learning-with-court add-lesson <workshop-id> --title "..." --prereqs 4`. v2.
+- **Zero-keystroke workshop start**: SessionStart hooks load context but Claude Code's model can't speak first — turn 1 is always the user's. To skip the "type something to begin" friction, the substrate (or the future companion plugin's `/setup-workshop` flow) can ship a wrapper script that launches CC with an initial prompt: `claude "let's start the workshop"`. CC opens, the seed becomes turn 1, the model greets immediately. Useful for non-technical learners. Discovered while spiking the SessionStart hook in `learning-with-court-sample-substrate`. Defer until the companion plugin is in scope; until then, README tells learners to type "hi" or similar.
 - **Multi-client support**: the server is client-agnostic in principle. Validate by walking lesson 1 from MCP Inspector + claude.ai's connector, not just Claude Code. v1+ but worth checking before committing to plugin-specific patterns.
 - **Pricing / gating**: not in scope for v1. The architecture supports it (entitlement check in `SessionMiddleware`); decision deferred.
 
