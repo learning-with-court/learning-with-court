@@ -34,7 +34,7 @@ More workshops land here over time.
 
 ## Notes
 
-- **Auto mode and `pnpm install`.** Claude Code's auto mode classifier may ask for approval before running `pnpm install`. That's a safety check, not a problem — approve when prompted. If you've turned auto mode strict and the install gets denied, the skill falls back to telling you exactly what to run yourself.
+- **You'll run `pnpm install` yourself.** Claude Code's auto-mode classifier blocks `pnpm install` (it runs lifecycle scripts that can do anything; CC won't run it for you even with approval). The setup skill clones the workshop and hands you a three-line copy-paste block: `cd <path> && pnpm install && claude`. Easiest path.
 - **Cross-platform.** macOS, Linux, and Windows (WSL or Git Bash) all work today. Native PowerShell is best-effort.
 
 ## What's in this repo

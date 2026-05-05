@@ -70,56 +70,27 @@ gh repo clone schuettc/learning-with-court-sample-substrate <chosen-path>
 
 If the clone fails with a 404 / permission error, the user needs collaborator access on the private repo. Tell them to ask the workshop owner.
 
-### 5. Heads up about pnpm install + try it
+### 5. Hand off — do NOT run `pnpm install` yourself
 
-Before running `pnpm install`, tell the user:
+**Important:** Claude Code's auto-mode classifier blocks `pnpm install` and the block can't be talked past with user approval. Don't try. Instead, fold the install into the handoff commands the user runs in their own terminal.
 
-> I'll run `pnpm install` next. Claude Code's auto mode often asks for approval before installing dependencies — that's expected; it's a safety check. If you see a prompt, please approve.
+Print this block exactly (using the absolute path — expand `$HOME` to the real path like `/Users/<name>/...` or `/home/<name>/...`):
 
-Then run:
-
-```bash
-cd <chosen-path> && pnpm install
-```
-
-If it succeeds, great — proceed to step 6.
-
-If it's denied (auto mode classifier blocks it and the user can't override mid-flight), don't keep retrying. Fall back gracefully: hand off to the user with explicit instructions in step 6 that include `pnpm install`.
-
-### 6. Print the handoff block — always
-
-Whether pnpm install ran or got denied, ALWAYS finish with a clean copy-pasteable handoff. Use the absolute path (resolve `$HOME` to the real path).
-
-If pnpm install **succeeded**, print exactly:
-
-> ✅ Setup complete. To start the workshop:
+> ✅ Substrate cloned at `<absolute-path>`. Three commands to start the workshop:
 >
-> 1. Exit this Claude Code session (`/exit` or Cmd-Q).
-> 2. In a new terminal:
->    ```
->    cd <absolute-path>
->    claude
->    ```
-> 3. Type "hi" — the workshop will greet you and pick up. Your progress is saved server-side; cross-session resume is automatic.
-
-If pnpm install was **denied or skipped**, print:
-
-> ✅ Substrate cloned at `<absolute-path>`. To finish setup and start:
+> ```
+> cd <absolute-path>
+> pnpm install
+> claude
+> ```
 >
-> 1. Exit this Claude Code session (`/exit` or Cmd-Q).
-> 2. In a new terminal:
->    ```
->    cd <absolute-path>
->    pnpm install
->    claude
->    ```
-> 3. Type "hi" — the workshop will greet you and pick up. Your progress is saved server-side; cross-session resume is automatic.
+> Run those in a new terminal (you can exit this Claude Code session with `/exit` or Cmd-Q first). When the new Claude Code session opens, type "hi" — the workshop will greet you and pick up. Your progress is saved server-side; cross-session resume is automatic.
 
-The path must be **absolute** so the user can copy-paste from any terminal location. If you used `~/...` or `$HOME/...` to clone, expand it to the real path (`/Users/<name>/...` or `/home/<name>/...`) for the handoff.
+The path must be **absolute** so the user can copy-paste from any terminal location.
 
-### 7. Stop. Don't try to start the workshop.
+### 6. Stop. Don't try to start the workshop.
 
-After step 6, you're done. The deployed workshop server may be available as an MCP server in this session, but the substrate's project-scoped hooks aren't active here — the workshop is designed to run from inside the substrate dir.
+After step 5, you're done. The deployed workshop server may be available as an MCP server in this session, but the substrate's project-scoped hooks aren't active here — the workshop is designed to run from inside the substrate dir.
 
 If the user pushes ("let's just start it now"), explain briefly why a fresh session is needed and stop.
 

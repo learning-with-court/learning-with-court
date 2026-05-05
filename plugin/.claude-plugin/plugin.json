@@ -15,8 +15,6 @@
       "Bash(gh auth status:*)",
       "Bash(gh repo clone:*)",
       "Bash(pnpm --version)",
-      "Bash(pnpm install)",
-      "Bash(pnpm install:*)",
       "Bash(node --version)",
       "Bash(ls:*)",
       "Bash(test -d:*)",
