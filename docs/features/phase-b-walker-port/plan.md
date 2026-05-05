@@ -31,29 +31,29 @@ Without this, the lesson confuses non-devs and even some devs.
 
 ## Implementation Steps
 
-- [ ] Step 1: Read source material:
+- [x] Step 1: Read source material:
   - `~/GitHub/schuettc/claude-code-mcp-workshop/plugin/skills/lesson-07-api-keys/SKILL.md`
   - `.../lesson-08-oauth/SKILL.md`
   - `.../lesson-09-http/SKILL.md`
   - `.../lesson-10-pkce/SKILL.md`
   - And the four corresponding `workshop/lesson_NN_*/README.md` + `verify.ts`
 
-- [ ] Step 2: Write `lesson-07.ts` through `lesson-10.ts` in `workshops/mcp-workshop/src/lessons/`. Same shape as Phase A lessons. Notable differences:
+- [x] Step 2: Write `lesson-07.ts` through `lesson-10.ts` in `workshops/mcp-workshop/src/lessons/`. Same shape as Phase A lessons. Notable differences:
   - Lesson 7's verify likely involves SQLite — the verify script may emit different markers (read it).
   - Lesson 8 walker has the explicit identity-confusion framing (above).
   - Lesson 9 may have a `start` script that brings up a server on a port — verify rubric needs to match what `pnpm --filter @workshop/lesson-09-http verify` actually outputs (which likely runs against an in-memory transport, not the live HTTP server).
   - Lesson 10's PKCE flow involves a browser. Walker prose needs to handle "open this URL, sign in, return here" gracefully.
 
-- [ ] Step 3: Update `workshops/mcp-workshop/src/index.ts` — add lessons 7-10 to the `lessons` array. Update the workshop's `description` to mention Phase B is now available.
+- [x] Step 3: Update `workshops/mcp-workshop/src/index.ts` — add lessons 7-10 to the `lessons` array. Update the workshop's `description` to mention Phase B is now available.
 
-- [ ] Step 4: `pnpm typecheck` from workshops repo root — must pass.
+- [x] Step 4: `pnpm typecheck` from workshops repo root — must pass.
 
-- [ ] Step 5: Sanity check each new lesson's:
+- [x] Step 5: Sanity check each new lesson's:
   - `targetFiles` paths exist in `~/GitHub/schuettc/learning-with-court-mcp-workshop-substrate/workshop/lesson_0[7-9]_*` and `lesson_10_*`.
   - `verifyCommand` package name matches the substrate's `package.json`.
   - Verify rubric regex would match what the lesson's `verify.ts` actually emits.
 
-- [ ] Step 6: Commit + push to feature branch. **Do NOT open PR** — the orchestrator handles ship.
+- [x] Step 6: Commit + push to feature branch. **Do NOT open PR** — the orchestrator handles ship.
 
 ## Lesson 8 walker prose (explicit guidance)
 
