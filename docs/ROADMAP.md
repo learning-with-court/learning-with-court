@@ -3,9 +3,11 @@
 ## Phase 0 — Plan and validate (now)
 
 - [x] Capture vision, architecture, reference projects (this `docs/`).
-- [ ] Decide on initial-stack tooling: TypeScript + CDK + Lambda + DynamoDB + HTTP API v2 (matches `mcp-workshop`'s Phase C, near-zero learning curve since the team already shipped that). Confirm before scaffolding.
-- [ ] Decide on auth provider for the MVP: GitHub App (matches `mcp-workshop` Phase C; learners already have GitHub) vs Clerk (cleaner public-client PKCE; adds a vendor dependency).
-- [ ] Decide on first workshop scope: **port `mcp-workshop` lesson 1** end-to-end as proof of concept, before porting all 13.
+- [x] Initial-stack tooling: TypeScript + CDK + Lambda + DynamoDB + HTTP API v2 (matches `mcp-workshop`'s Phase C).
+- [x] Auth provider for the MVP: **Clerk** — matches `mixcraft-app` and `bettor-help`, gives platform-wide consistency. The `OAuthAuthorizationServerProxy` construct is built IDP-pluggable from day 1 but ships only the Clerk adapter for v1; GitHub adapter is a future addition if a workshop's audience demands it.
+- [x] Companion plugin distribution: **project-scoped** is the recommended install. User-scoped would fire the edit-blocking hook against every project on the learner's machine; project-scoped keeps the hook bound to the directory the workshop is being taken in. Documented in install instructions.
+- [x] First workshop scope: port `mcp-workshop` lesson 1 end-to-end as proof of concept before porting the remaining 12.
+- [ ] Verify-output-capture UX (PostToolUse-on-Bash stdout reliability): **deferred to Phase 2 spike** — prototype lesson 1, test the capture path with real learner sessions, fall back to paste-output if unreliable.
 
 ## Phase 1 — Platform scaffolding (~1 week)
 

@@ -96,14 +96,13 @@ verify_rubric:
 - **Lesson 8 (OAuth)**: forks on whether the learner is going to Phase C. Server-side branching — `start_lesson(8)` returns a prompt body that asks the question and the user's response routes to either mock-only or real-GitHub-App setup. The fork lives in DDB session state.
 - **Lessons 11-13 (Phase C)**: **the recursive case.** The learner is deploying their own AWS Lambda + GitHub OAuth proxy + DynamoDB while interacting with our hosted-MCP server which IS those things. Need to make the meta-level explicit ("the workshop you're talking to right now is exactly the architecture you just deployed; here are the differences"). Could be the most powerful pedagogical moment if we play it well.
 
-## Auth: GitHub or Clerk?
+## Auth: Clerk
 
-Recommend **GitHub** for this workshop specifically:
-- The audience is technical; everyone has a GitHub account.
-- The Phase C lessons already require a GitHub App (lesson 8's "set up the github app" path); reusing the *same* GitHub App for workshop auth makes the session cohesive. (Or use a workshop-owned App that has nothing to do with the user's lesson-8 App; cleaner separation.)
-- We already have the GitHub OAuth proxy working in `mcp-workshop/infra/`. Lift it.
+**Decided: Clerk** (consistent with `mixcraft-app` and `bettor-help`; platform-wide standard).
 
-For *future* workshops, especially ones aimed at non-developer audiences, Clerk is the better default.
+Important nuance for this specific workshop: it *teaches* GitHub OAuth in lessons 8 and 11. Workshop-auth (Clerk) is intentionally orthogonal to the auth-pattern-being-taught (GitHub) so learners aren't confused about whether they're logged into the workshop server or the server they're building. Lesson walkers make this explicit: "you authenticated to the workshop with Clerk; the GitHub App you're now configuring is for *your* deployed Lambda, separately."
+
+Implementation reference: lift `mixcraft-app/packages/mcp-server/src/auth/clerk-jwt.ts` near-verbatim. The `mcp-workshop/infra/src/lambda/oauth-server.ts` GitHub proxy is *not* reused for workshop auth — it stays in `mcp-workshop` as the thing the lesson teaches the learner to build.
 
 ## Companion plugin specifics
 

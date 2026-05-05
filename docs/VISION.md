@@ -15,10 +15,11 @@ We're pivoting to a different delivery model: each workshop is a **deployed MCP 
 - The same workshop can be taken with different MCP clients; the server doesn't care which one you use.
 
 **For workshop authors:**
-- **Curriculum is hidden until pedagogically appropriate.** Lesson scaffolding (the "explain → predict → verify → tie back to source" prose) lives in server-side prompts the learner never sees as raw text. The "secret sauce" (rubrics, expected-output signatures, design rationale) stays server-side.
+- **Single source of truth for lesson content.** Walker prose, rubrics, and lesson sequencing live server-side, authored once. No more "fix a typo, ask everyone to `git pull`."
+- **Walker prose is model-directed content, not private content.** It's *intended* for the model to read and act on, not for the learner to scan as raw text. By default Claude Code surfaces it on demand (`prompts/get`) but doesn't display it inline; that's UX convention, not enforced privacy. Workshops needing genuinely private content (paid-content gating, answer keys) use *gated tools* — the server returns content only when prereqs are met — not prompts.
 - **Updates are zero-friction.** Push to the server; every learner's next call sees the new content.
-- **Per-learner progress** falls out for free — DynamoDB row keyed on the learner's authenticated identity.
-- **Gating** is trivial: refuse to start lesson N until lesson N-1 passed. No client-side trust required.
+- **Per-learner progress** falls out for free — DynamoDB row keyed on the learner's authenticated identity. Resume across machines.
+- **Pacing is a server concern, but advisory.** The platform tracks "you've completed lessons 1-3"; whether to *enforce* an order is a workshop choice, expressible in walker prose (the platform itself defaults to permissive — skip-ahead and replay are allowed).
 - **Telemetry** for free: where do learners get stuck? Server logs answer.
 - **Monetizable / cohort-able** if desired: gate by subscription, by team, by enrollment date.
 
@@ -30,6 +31,7 @@ We're pivoting to a different delivery model: each workshop is a **deployed MCP 
 - **Edit-blocking hooks.** "Don't let the user edit `infra/api-stack.ts` while we're on lesson 4" requires PreToolUse hooks in Claude Code's plugin system. MCP servers can't intercept tool calls before they execute. Mitigated by a small companion plugin (~50-80 lines) that pairs with each hosted workshop.
 - **Free-text NLU triggers.** "Say `run verify`" can't be intercepted server-side. The user has to invoke a tool by name, or the companion plugin maps the natural-language phrase to a tool call.
 - **The "tutor in the room" feel** unless the companion plugin is installed. With the plugin, the experience is the same as today's plugin-only model. Without it, the user calls tools more directly — closer to a CLI walkthrough than a conversation. Still good; not as warm.
+- **Real content privacy.** MCP exposes prompts and resources by design — `prompts/get` is part of the spec. Walker prose reaches the model in normal use; a curious learner can fetch it. Workshops needing answer-key-style privacy use *gated tools* (server returns content only after prereqs are met), not prompts. MCP is a delivery substrate, not a privacy boundary.
 
 ## The vision
 
