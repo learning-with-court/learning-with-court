@@ -70,21 +70,19 @@ gh repo clone schuettc/learning-with-court-sample-substrate <chosen-path>
 
 If the clone fails with a 404 / permission error, the user needs collaborator access on the private repo. Tell them to ask the workshop owner.
 
-### 5. Hand off — do NOT run `pnpm install` yourself
+### 5. Hand off with a single chained command
 
-**Important:** Claude Code's auto-mode classifier blocks `pnpm install` and the block can't be talked past with user approval. Don't try. Instead, fold the install into the handoff commands the user runs in their own terminal.
+**Important:** Claude Code's auto-mode classifier blocks `pnpm install` and the block can't be talked past with user approval (we tested). Don't attempt it from any context — not from this skill, not from the workshop session that opens later. The user runs it in their own terminal as part of the handoff.
 
-Print this block exactly (using the absolute path — expand `$HOME` to the real path like `/Users/<name>/...` or `/home/<name>/...`):
+To make this as simple as possible, fold everything into one chained command. Print this block exactly (using the absolute path — expand `$HOME` to the real path like `/Users/<name>/...` or `/home/<name>/...`):
 
-> ✅ Substrate cloned at `<absolute-path>`. Three commands to start the workshop:
+> ✅ Substrate cloned at `<absolute-path>`. One command to finish setup and start:
 >
 > ```
-> cd <absolute-path>
-> pnpm install
-> claude
+> cd <absolute-path> && pnpm install && claude
 > ```
 >
-> Run those in a new terminal (you can exit this Claude Code session with `/exit` or Cmd-Q first). When the new Claude Code session opens, type "hi" — the workshop will greet you and pick up. Your progress is saved server-side; cross-session resume is automatic.
+> Copy-paste that into a new terminal. You can exit this Claude Code session first with `/exit` or Cmd-Q. When Claude Code opens in the substrate dir, type "hi" — the workshop will greet you and pick up. Your progress is saved server-side; cross-session resume is automatic.
 
 The path must be **absolute** so the user can copy-paste from any terminal location.
 

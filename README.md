@@ -34,7 +34,7 @@ More workshops land here over time.
 
 ## Notes
 
-- **You'll run `pnpm install` yourself.** Claude Code's auto-mode classifier blocks `pnpm install` (it runs lifecycle scripts that can do anything; CC won't run it for you even with approval). The setup skill clones the workshop and hands you a three-line copy-paste block: `cd <path> && pnpm install && claude`. Easiest path.
+- **You'll run `pnpm install` yourself.** Claude Code's auto-mode classifier blocks `pnpm install` from any context (lifecycle scripts run arbitrary code; CC won't run it for you even with approval). The setup skill clones the workshop and hands you a single chained command: `cd <path> && pnpm install && claude`. Copy-paste once.
 - **Cross-platform.** macOS, Linux, and Windows (WSL or Git Bash) all work today. Native PowerShell is best-effort.
 
 ## What's in this repo
