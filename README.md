@@ -13,3 +13,22 @@ This project pivots to a different model. Each workshop is a **deployed MCP serv
 Early-stage planning. Plans live in [`docs/`](./docs/). The first workshop being ported is [`mcp-workshop`](https://github.com/schuettc/mcp-workshop) — a 13-lesson MCP-server workshop with three phases (local stdio → local HTTP+OAuth → hosted AWS Lambda).
 
 Read first: [`docs/VISION.md`](./docs/VISION.md), [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md), [`docs/REFERENCE_PROJECTS.md`](./docs/REFERENCE_PROJECTS.md), [`docs/ROADMAP.md`](./docs/ROADMAP.md).
+
+## Companion plugin
+
+`plugin/` contains the Claude Code plugin learners install to take a workshop. It currently provides one skill, `@setup-workshop`, which clones the workshop's substrate codebase and walks the learner through the post-setup restart. After setup, the substrate's own (project-scoped) hooks take over.
+
+### Test the plugin locally (development)
+
+```bash
+# from any empty directory
+claude --plugin-dir ~/GitHub/schuettc/learning-with-court/plugin
+# then in Claude Code:
+> set up the sample workshop
+```
+
+The skill drives `gh repo clone` + `pnpm install` + tells you how to switch into the cloned dir.
+
+### Install the plugin (user-scoped, eventual)
+
+Once we publish to a marketplace, the plugin can be installed via Claude Code's plugin system. Until then, `--plugin-dir` is the supported install path for testers.
