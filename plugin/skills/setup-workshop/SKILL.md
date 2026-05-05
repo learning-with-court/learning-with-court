@@ -29,9 +29,13 @@ When more workshops land, this list grows.
 
 If the user already named one, use it. Otherwise list options and ask. If only `sample` exists and the user said "the workshop," use it.
 
-### 2. Check prerequisites
+### 2. Check prerequisites and probe environment for level signals
 
-Run these silently and only surface failures. Don't proceed past a missing prereq.
+Run these silently and only surface failures on the **gating** prereqs. The
+remaining checks are *signals* — they don't gate setup, they feed the level
+inference (see step 4b).
+
+**Gating prereqs** (must pass; surface failures, then stop):
 
 - **gh CLI installed:** `gh --version`. If missing → tell them: `brew install gh` (macOS) or see <https://cli.github.com/>.
 - **gh authenticated:** `gh auth status`. If not → tell them to run `gh auth login` and come back.
@@ -39,6 +43,25 @@ Run these silently and only surface failures. Don't proceed past a missing prere
 - **node version:** `node --version`. Workshops require Node 20+. If older → tell them to upgrade (recommend nvm).
 
 If everything's there, briefly confirm to the user that prereqs are good and move on. Don't dump version output.
+
+**Level signals** (informational only — record pass/fail silently):
+
+- `gh`: installed AND `gh auth status` succeeded → true
+- `pnpm`: installed → true
+- `node20+`: `node --version` reports v20 or higher → true
+- `aws_profile`: `aws configure list-profiles` returns at least one profile, OR `~/.aws/config` exists and is non-empty → true
+- `shell_dotfiles`: `~/.zshrc` or `~/.bashrc` exists and is non-zero size → true
+- `gitconfig`: `git config --global user.name` returns a non-empty value → true
+
+Don't ask the user about these; just probe. Failures here are not blockers.
+
+**Inference rule** (count of `true` signals out of 6):
+
+- 0 or 1 → `beginner`
+- 2 or 3 → `intermediate`
+- 4, 5, or 6 → `expert`
+
+Hold the inferred level + the per-signal booleans for use in step 4b.
 
 ### 3. Pick a clone location — ASK the user
 
@@ -70,13 +93,50 @@ gh repo clone schuettc/learning-with-court-sample-substrate <chosen-path>
 
 If the clone fails with a 404 / permission error, the user needs collaborator access on the private repo. Tell them to ask the workshop owner.
 
+### 4b. Persist the inferred level into the substrate
+
+Write `<chosen-clone-path>/.claude/lwc-workshop.local.md` with YAML
+frontmatter holding the level + signals + an ISO-8601 timestamp. Make sure
+`.claude/` exists (`mkdir -p <chosen-clone-path>/.claude`).
+
+Use this exact shape (substitute the real values you computed in step 2):
+
+```markdown
+---
+level: intermediate
+inferred_at: 2026-05-05T17:23:00Z
+signals:
+  gh: true
+  pnpm: true
+  node20+: true
+  aws_profile: false
+  shell_dotfiles: true
+  gitconfig: false
+---
+
+# learning-with-court workshop — local config
+
+This file was written by the `setup-workshop` skill based on a probe of your
+environment. The `level:` value tunes how the workshop's walker prose
+addresses you. To override, edit `level:` to one of `beginner`,
+`intermediate`, or `expert`. The hook trusts whatever value is here.
+
+This file is gitignored — it's per-user state, not part of the workshop.
+```
+
+Get the ISO timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`. Quoting the values
+isn't required (the hook parses with simple sed/awk), but keep the keys and
+shape exactly as shown — bash YAML parsing is fragile.
+
 ### 5. Hand off — just `cd` and `claude`
 
 **Important:** Don't run `pnpm install` here. Claude Code's auto-mode classifier blocks `pnpm install` when run from a different directory than CC's current working directory (the cross-dir shape is what gets flagged). Once the user is inside the substrate dir with a fresh `claude` session, the install runs fine.
 
 So the handoff is just two commands. Print exactly (using the absolute path — expand `$HOME` to the real path like `/Users/<name>/...` or `/home/<name>/...`):
 
-> ✅ Substrate cloned at `<absolute-path>`. To start the workshop, copy this into a new terminal:
+> ✅ Substrate cloned at `<absolute-path>`. I inferred your level as **`<level>`** based on what's installed in your environment — the workshop will adapt its prose accordingly. You can override anytime by editing `<absolute-path>/.claude/lwc-workshop.local.md` (change the `level:` line to `beginner`, `intermediate`, or `expert`).
+>
+> To start the workshop, copy this into a new terminal:
 >
 > ```
 > cd <absolute-path> && claude
