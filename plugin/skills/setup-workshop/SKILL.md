@@ -70,19 +70,19 @@ gh repo clone schuettc/learning-with-court-sample-substrate <chosen-path>
 
 If the clone fails with a 404 / permission error, the user needs collaborator access on the private repo. Tell them to ask the workshop owner.
 
-### 5. Hand off with a single chained command
+### 5. Hand off — just `cd` and `claude`
 
-**Important:** Claude Code's auto-mode classifier blocks `pnpm install` and the block can't be talked past with user approval (we tested). Don't attempt it from any context — not from this skill, not from the workshop session that opens later. The user runs it in their own terminal as part of the handoff.
+**Important:** Don't run `pnpm install` here. Claude Code's auto-mode classifier blocks `pnpm install` when run from a different directory than CC's current working directory (the cross-dir shape is what gets flagged). Once the user is inside the substrate dir with a fresh `claude` session, the install runs fine.
 
-To make this as simple as possible, fold everything into one chained command. Print this block exactly (using the absolute path — expand `$HOME` to the real path like `/Users/<name>/...` or `/home/<name>/...`):
+So the handoff is just two commands. Print exactly (using the absolute path — expand `$HOME` to the real path like `/Users/<name>/...` or `/home/<name>/...`):
 
-> ✅ Substrate cloned at `<absolute-path>`. One command to finish setup and start:
+> ✅ Substrate cloned at `<absolute-path>`. To start the workshop, copy this into a new terminal:
 >
 > ```
-> cd <absolute-path> && pnpm install && claude
+> cd <absolute-path> && claude
 > ```
 >
-> Copy-paste that into a new terminal. You can exit this Claude Code session first with `/exit` or Cmd-Q. When Claude Code opens in the substrate dir, type "hi" — the workshop will greet you and pick up. Your progress is saved server-side; cross-session resume is automatic.
+> You can exit this Claude Code session first with `/exit` or Cmd-Q. When the new Claude Code session opens in the substrate, type "hi" — the workshop will greet you and offer to install dependencies if needed. Your progress is saved server-side; cross-session resume is automatic.
 
 The path must be **absolute** so the user can copy-paste from any terminal location.
 
