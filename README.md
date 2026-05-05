@@ -8,11 +8,13 @@ Hosted-MCP workshops driven by Claude Code.
 1. Open Claude Code in any directory.
 2. Type:  /plugin marketplace add schuettc/learning-with-court
 3. Type:  /plugin install learning-with-court@learning-with-court
-4. Restart Claude Code when prompted.
+4. Type:  /reload-plugins
 5. Tell Claude:  set up the sample workshop
 ```
 
-That's the whole guide. Claude takes it from there — checks your tools, clones the workshop's codebase, walks you through.
+That's the whole guide. Claude takes it from there — checks your tools, asks where to put the workshop folder, clones it, hands you off to a fresh Claude Code session inside the cloned dir.
+
+The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — the next workshop only needs step 5.
 
 ## Requirements (Claude helps install missing pieces)
 
@@ -30,10 +32,15 @@ You don't have to install these up front. Claude will check what's missing and s
 
 More workshops land here over time.
 
+## Notes
+
+- **Auto mode and `pnpm install`.** Claude Code's auto mode classifier may ask for approval before running `pnpm install`. That's a safety check, not a problem — approve when prompted. If you've turned auto mode strict and the install gets denied, the skill falls back to telling you exactly what to run yourself.
+- **Cross-platform.** macOS, Linux, and Windows (WSL or Git Bash) all work today. Native PowerShell is best-effort.
+
 ## What's in this repo
 
-- [`plugin/`](./plugin) — the Claude Code plugin. Provides `@setup-workshop`, the skill that handles the substrate clone + setup choreography. After setup, the substrate's own hooks and the deployed workshop server take over.
-- [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) — marketplace metadata for `/plugin marketplace add` discovery.
+- [`plugin/`](./plugin) — the Claude Code plugin. Provides `@setup-workshop`.
+- [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) — marketplace metadata.
 - [`docs/`](./docs) — design docs ([VISION](./docs/VISION.md), [ARCHITECTURE](./docs/ARCHITECTURE.md), [REFERENCE_PROJECTS](./docs/REFERENCE_PROJECTS.md), [ROADMAP](./docs/ROADMAP.md)). Not required reading to take a workshop.
 
 ## How it works (one paragraph)
@@ -42,4 +49,4 @@ A workshop is split in two: **content** (lessons, walker prose, rubrics) lives o
 
 ## Status
 
-Early. One workshop, single-user shared identity, private repos. Auth (Clerk) and a real marketplace publish are the next big pieces.
+Early. One workshop, single-user shared identity, private repos. Auth (Clerk) and a public marketplace publish are the next big pieces.
