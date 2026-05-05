@@ -32,29 +32,29 @@ This is a hard prereq — without it, the lesson literally can't run. Walker pro
 
 ## Implementation Steps
 
-- [ ] Step 1: Read source material:
+- [x] Step 1: Read source material:
   - `~/GitHub/schuettc/claude-code-mcp-workshop/plugin/skills/lesson-11-aws-deploy/SKILL.md`
   - `.../lesson-12-aws-data/SKILL.md`
   - `.../lesson-13-shipping/SKILL.md`
   - Plus the three `workshop/lesson_NN_*/README.md` and `verify.ts` files.
   - Also read `plugin/skills/onboard-aws/SKILL.md` for the AWS prereq-walk content (mining for our Phase C prereqs resource).
 
-- [ ] Step 2: Write `lesson-11.ts`, `lesson-12.ts`, `lesson-13.ts` in `workshops/mcp-workshop/src/lessons/`. Same shape as Phase A/B. Notable differences:
+- [x] Step 2: Write `lesson-11.ts`, `lesson-12.ts`, `lesson-13.ts` in `workshops/mcp-workshop/src/lessons/`. Same shape as Phase A/B. Notable differences:
   - Lesson 11's walkerPrompt opens with the **recursive-case framing** (verbatim guidance above).
   - Lesson 11's walker also runs the **AWS-prereq check** before any deploy work — if missing, walker stops with an explicit "do this setup first" message; doesn't proceed.
   - Lessons 11-12 verify scripts may not exist as in-memory transport tests — they may verify the deployed stack via AWS CLI calls. Read each verify.ts to learn the actual mechanism.
   - Lesson 13 is largely a `.mcp.json` + README change in mcp-workshop's existing structure — its walker should map onto our existing `lwc-mcp-workshop` server-name in `.mcp.json` rather than re-deriving.
 
-- [ ] Step 3: Update `workshops/mcp-workshop/src/index.ts` — add lessons 11-13 to the `lessons` array. Update workshop description to mention all three phases now available; flag Phase C as optional.
+- [x] Step 3: Update `workshops/mcp-workshop/src/index.ts` — add lessons 11-13 to the `lessons` array. Update workshop description to mention all three phases now available; flag Phase C as optional.
 
-- [ ] Step 4: `pnpm typecheck` from workshops repo root — must pass.
+- [x] Step 4: `pnpm typecheck` from workshops repo root — must pass.
 
-- [ ] Step 5: Sanity check each lesson:
+- [x] Step 5: Sanity check each lesson:
   - `targetFiles` exist in substrate (`workshop/lesson_1[1-3]_*/`).
   - `verifyCommand` package name matches substrate's `package.json`.
   - Verify rubric regex matches what the lesson's `verify.ts` actually emits (read carefully — Phase C verify scripts may differ in shape from Phase A/B).
 
-- [ ] Step 6: Commit + push to feature branch. Don't open PRs; orchestrator handles ship.
+- [x] Step 6: Commit + push to feature branch. Don't open PRs; orchestrator handles ship.
 
 ## Rubric tuning per lesson
 
