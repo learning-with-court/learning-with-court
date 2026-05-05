@@ -39,9 +39,26 @@ Provisioning a Clerk app and configuring the MCP OAuth callback URL on it is par
 - Future learners: per-user progress that's actually theirs.
 - Every downstream chunk: builds on a real auth substrate.
 
+## What I'll need from you
+
+Clerk app provisioning has to happen on your end — I can't sign up or configure it. Specifically:
+
+- A Clerk app (free tier is fine; one app for the whole platform).
+- The Clerk **publishable key** (`pk_...`) and **secret key** (`sk_...`).
+- Decide on the workshop's redirect URI shape and configure it in the Clerk app's allowed redirects. The platform's `/oauth/callback` route on the deployed API Gateway endpoint is the most natural choice — full URL: `https://amd1bq5na7.execute-api.us-east-1.amazonaws.com/oauth/callback`. (We may add a custom domain later; that's a separate feature.)
+- Optionally: a test user provisioned in the Clerk app (or just sign in via your own primary identity once the wiring lands).
+
+Drop the keys into your terminal as env vars (don't commit them); the plan phase will detail how the deployed Lambda picks them up via Secrets Manager or env injection.
+
+You can do this in parallel while I plan the implementation.
+
 ## Affected Areas
 
 - platform-server
 - platform-infra (CDK)
 - auth
 - workshop-session-state
+
+## Blocked by
+
+Nothing — this is the first chunk. Everything else is blocked by this.
