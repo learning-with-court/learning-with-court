@@ -175,6 +175,53 @@ Run 1-3 trusted testers (mix of dev / non-dev) through the full workshop. Captur
 - Friction findings written to `docs/findings/2026-XX-XX-first-user-test.md` (date filled in when actually done) — including: what walker tones worked, what didn't, where adaptive guidance was on/off target, what prereqs were genuinely confusing.
 - Specific actionable items extracted from findings into the backlog as new features.
 
+## Level-signal contract (for walker prose authors)
+
+Walker prose in chunks 4-6 should adapt depth based on the learner's
+inferred user level. The signal flows like this:
+
+1. **Setup (plugin)**: `setup-workshop` skill probes the environment for
+   six tech-comfort signals (`gh`, `pnpm`, `node20+`, `aws_profile`,
+   `shell_dotfiles`, `gitconfig`), counts the trues, and buckets into one
+   of three levels.
+2. **Persist (substrate)**: skill writes
+   `<substrate-root>/.claude/lwc-workshop.local.md`. YAML frontmatter
+   shape:
+   ```yaml
+   ---
+   level: beginner | intermediate | expert
+   inferred_at: <ISO-8601>
+   signals:
+     gh: true|false
+     pnpm: true|false
+     node20+: true|false
+     aws_profile: true|false
+     shell_dotfiles: true|false
+     gitconfig: true|false
+   ---
+   ```
+   The file is gitignored. The user can override `level:` directly — the
+   hook trusts whatever value is there.
+3. **Surface (substrate hook)**: `.claude/hooks/session-start.sh` parses
+   `level:` from the frontmatter and emits an "Inferred user level"
+   section into the SessionStart context. If the file is absent, the
+   section is omitted (no level injected); if `level:` is unparseable,
+   the hook falls back to `intermediate`. There is no MCP-server-side
+   knowledge of level — it's purely client-side context.
+
+**Level enum** (closed set):
+- `beginner` — explain *why* before *how*; spell out terminal commands fully
+- `intermediate` — assume tools are familiar; explain new-to-this-lesson concepts (default)
+- `expert` — state changes concisely; trust the learner to fill in
+
+**Walker authoring guidance**: default to `intermediate` tone in lesson
+prose. Add explicit `if level === "beginner"` / `if level === "expert"`
+branches only at moments where depth genuinely differs (e.g., explaining
+what a package manager is, or skipping AWS profile setup). The model
+reads the level from session context — there's no API call for it.
+
+See `docs/features/adaptive-guidance/plan.md` for the full design.
+
 ## Success criteria (overall)
 
 - An authenticated user (real Clerk identity) walks mcp-workshop's full Phase A + B end-to-end.
