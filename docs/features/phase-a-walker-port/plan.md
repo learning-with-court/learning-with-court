@@ -23,9 +23,9 @@ This decision belongs in a follow-up — call it **chunk 4-ship** or roll into c
 
 ## Implementation Steps
 
-- [ ] Step 1: Create directory `learning-with-court-workshops/workshops/mcp-workshop/`. Bootstrap with `package.json` (mirrors the existing `workshops/sample/package.json`), `tsconfig.json`, `src/lessons/`.
+- [x] Step 1: Create directory `learning-with-court-workshops/workshops/mcp-workshop/`. Bootstrap with `package.json` (mirrors the existing `workshops/sample/package.json`), `tsconfig.json`, `src/lessons/`.
 
-- [ ] Step 2: Read each of the six existing walker SKILL.md files for source material:
+- [x] Step 2: Read each of the six existing walker SKILL.md files for source material:
   - `~/GitHub/schuettc/claude-code-mcp-workshop/plugin/skills/lesson-01-setup/SKILL.md`
   - `.../lesson-02-hello/SKILL.md`
   - `.../lesson-03-schemas/SKILL.md`
@@ -43,7 +43,7 @@ This decision belongs in a follow-up — call it **chunk 4-ship** or roll into c
   - References to "the deployed workshop server" instead of "the plugin."
   - Mention `where_am_i` and `submit_verify_output` instead of plugin-specific commands.
 
-- [ ] Step 3: Write `src/lessons/lesson-01.ts` through `src/lessons/lesson-06.ts`. Each is a `LessonDefinition`:
+- [x] Step 3: Write `src/lessons/lesson-01.ts` through `src/lessons/lesson-06.ts`. Each is a `LessonDefinition`:
   - `id` (1-6), `title`, `prerequisites` (advisory; chain of N → N+1 — but permissive at runtime).
   - `walkerPrompt` (the model-directed scaffolding; the meat of this chunk).
   - `resources` (one entry per lesson with `name: "instructions.md"`, `body` ported from mcp-workshop's lesson README).
@@ -52,16 +52,16 @@ This decision belongs in a follow-up — call it **chunk 4-ship** or roll into c
   - `verify` rubric — regex matched against vitest stdout. Use the same shape as sample workshop: `mustInclude: [/Test Files\s+1 passed/, /Tests\s+\d+ passed/]`, `mustNotInclude: [/failed/i]`. Adjust per lesson if the verify output isn't vitest-shaped (e.g., lessons that emit narration-style output may need different patterns — read the lesson's existing verify.ts to see what it prints).
   - `onPass` feedback (one-sentence congrats; advance pointer to next lesson).
 
-- [ ] Step 4: Write `src/index.ts` — the workshop's `WorkshopDefinition`:
+- [x] Step 4: Write `src/index.ts` — the workshop's `WorkshopDefinition`:
   - `id: "mcp-workshop"`, `title: "MCP Workshop — Build a Real MCP Server"`, `description` summarizing the 13 lessons + 3 phases.
   - `companionRepo`: `name: "learning-with-court-mcp-workshop-substrate"`, `gitUrl: "git@github.com:schuettc/learning-with-court-mcp-workshop-substrate.git"`, `cloneInstructions: "gh repo clone schuettc/learning-with-court-mcp-workshop-substrate && cd learning-with-court-mcp-workshop-substrate && pnpm install"`.
   - `lessons: [lesson01, lesson02, lesson03, lesson04, lesson05, lesson06]` — six entries for v1; B and C add later as chunks 5/6 ship without breaking learner state.
 
-- [ ] Step 5: Update `pnpm-workspace.yaml` in `learning-with-court-workshops` if needed (it lists `workshops/*` per existing pattern, so the new directory is auto-included).
+- [x] Step 5: Update `pnpm-workspace.yaml` in `learning-with-court-workshops` if needed (it lists `workshops/*` per existing pattern, so the new directory is auto-included). — No change needed; auto-included.
 
-- [ ] Step 6: `pnpm typecheck` from the workshops repo root — must pass. Imports from `@lwc/server/types` should work via the existing file-link configured in the sample workshop.
+- [x] Step 6: `pnpm typecheck` from the workshops repo root — must pass. Imports from `@lwc/server/types` should work via the existing file-link configured in the sample workshop.
 
-- [ ] Step 7: Smoke-check the data — for each lesson, hand-verify:
+- [x] Step 7: Smoke-check the data — for each lesson, hand-verify:
   - Walker prose mentions the `targetFiles` paths correctly (the regex/strings in the prose should align with what the substrate actually has).
   - Verify rubric's regex would actually match the lesson's verify-script stdout. Read the lesson's `verify.ts` in the substrate to see what it prints; tune the regex to find the success markers without false-matching on noise.
   - The `verifyCommand` is exact — `pnpm --filter @workshop/lesson-NN-<name> verify` with the right package name.
