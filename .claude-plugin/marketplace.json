@@ -1,0 +1,15 @@
+{
+  "name": "learning-with-court",
+  "owner": {
+    "name": "Court Schuett",
+    "url": "https://github.com/schuettc"
+  },
+  "plugins": [
+    {
+      "name": "learning-with-court",
+      "source": "./plugin",
+      "description": "Entry point for learning-with-court workshops. After install, tell Claude Code 'set up the sample workshop' (or any other workshop name) and the plugin clones the workshop's substrate, installs deps, and walks you through the restart needed to begin. The actual lessons are driven by the workshop's deployed MCP server, not by this plugin.",
+      "version": "0.1.0"
+    }
+  ]
+}

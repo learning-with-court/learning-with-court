@@ -1,34 +1,45 @@
 # learning-with-court
 
-A platform for delivering hands-on technical workshops as **hosted MCP servers** instead of cloned repositories.
+Hosted-MCP workshops driven by Claude Code.
 
-## Why this exists
+## Take a workshop
 
-Most technical workshops ship as a git repo: clone, follow a README, run scripts, hope nothing drifts. That model has three problems: every learner sees every line of the curriculum (no gating, no pacing control), the instructor can't track progress without a custom backend, and updates require every learner to `git pull`.
+```
+1. Open Claude Code in any directory.
+2. Type:  /plugin marketplace add schuettc/learning-with-court
+3. Type:  /plugin install learning-with-court@learning-with-court
+4. Restart Claude Code when prompted.
+5. Tell Claude:  set up the sample workshop
+```
 
-This project pivots to a different model. Each workshop is a **deployed MCP server** that any MCP client (Claude Code, the MCP Inspector, claude.ai's connector) can authenticate against and walk through. Lesson content lives server-side and is revealed at the right pacing moment. Progress is tracked per-user. Updates are zero-friction.
+That's the whole guide. Claude takes it from there — checks your tools, clones the workshop's codebase, walks you through.
+
+## Requirements (Claude helps install missing pieces)
+
+- **Claude Code** — <https://claude.com/claude-code>
+- **gh CLI** — `brew install gh && gh auth login`
+- **Node 20+** and **pnpm** — `npm install -g pnpm`
+
+You don't have to install these up front. Claude will check what's missing and show you the command to run.
+
+## Available workshops
+
+| Workshop | What you build | Substrate repo |
+|---|---|---|
+| **sample** | A small MCP server with a Zod-validated tool and a resource (2 lessons, ~15 min). | `schuettc/learning-with-court-sample-substrate` (private — needs collaborator access) |
+
+More workshops land here over time.
+
+## What's in this repo
+
+- [`plugin/`](./plugin) — the Claude Code plugin. Provides `@setup-workshop`, the skill that handles the substrate clone + setup choreography. After setup, the substrate's own hooks and the deployed workshop server take over.
+- [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) — marketplace metadata for `/plugin marketplace add` discovery.
+- [`docs/`](./docs) — design docs ([VISION](./docs/VISION.md), [ARCHITECTURE](./docs/ARCHITECTURE.md), [REFERENCE_PROJECTS](./docs/REFERENCE_PROJECTS.md), [ROADMAP](./docs/ROADMAP.md)). Not required reading to take a workshop.
+
+## How it works (one paragraph)
+
+A workshop is split in two: **content** (lessons, walker prose, rubrics) lives on a deployed MCP server we host; **code** (the codebase you edit) lives in a sibling "substrate" repo you clone once. The plugin in this repo handles the clone-and-wire-up step. The substrate ships with its own `.mcp.json` and `.claude/settings.json`, so once you `cd` into it and run `claude`, the workshop greets you and walks the lessons. Server-side state means your progress survives across machines and sessions.
 
 ## Status
 
-Early-stage planning. Plans live in [`docs/`](./docs/). The first workshop being ported is [`mcp-workshop`](https://github.com/schuettc/mcp-workshop) — a 13-lesson MCP-server workshop with three phases (local stdio → local HTTP+OAuth → hosted AWS Lambda).
-
-Read first: [`docs/VISION.md`](./docs/VISION.md), [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md), [`docs/REFERENCE_PROJECTS.md`](./docs/REFERENCE_PROJECTS.md), [`docs/ROADMAP.md`](./docs/ROADMAP.md).
-
-## Companion plugin
-
-`plugin/` contains the Claude Code plugin learners install to take a workshop. It currently provides one skill, `@setup-workshop`, which clones the workshop's substrate codebase and walks the learner through the post-setup restart. After setup, the substrate's own (project-scoped) hooks take over.
-
-### Test the plugin locally (development)
-
-```bash
-# from any empty directory
-claude --plugin-dir ~/GitHub/schuettc/learning-with-court/plugin
-# then in Claude Code:
-> set up the sample workshop
-```
-
-The skill drives `gh repo clone` + `pnpm install` + tells you how to switch into the cloned dir.
-
-### Install the plugin (user-scoped, eventual)
-
-Once we publish to a marketplace, the plugin can be installed via Claude Code's plugin system. Until then, `--plugin-dir` is the supported install path for testers.
+Early. One workshop, single-user shared identity, private repos. Auth (Clerk) and a real marketplace publish are the next big pieces.
