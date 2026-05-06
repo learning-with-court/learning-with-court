@@ -15,11 +15,10 @@ This skill handles the clone + handoff. The workshop server itself can't drive t
 
 Claude Code's working directory is set at process start; it can't change mid-session. So this skill's job ends at "the substrate is cloned and the user has clear next steps." The learner has to **exit Claude Code and start a new session inside the cloned dir** to actually take the workshop. That handoff is unavoidable.
 
-## Available workshops (v1)
+## Available workshops
 
-For now, one:
-
-- **sample** — *Sample Workshop: Building an MCP Server*. Two lessons (~15 min). Repo: `schuettc/learning-with-court-sample-substrate` (private — needs collaborator access).
+- **sample** — *Sample Workshop: Building an MCP Server*. Two lessons (~15 min). Repo: `schuettc/learning-with-court-sample-substrate`.
+- **mcp-workshop** — *MCP Workshop: Build a Real MCP Server*. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). Repo: `schuettc/learning-with-court-mcp-workshop-substrate`.
 
 When more workshops land, this list grows.
 
@@ -27,7 +26,7 @@ When more workshops land, this list grows.
 
 ### 1. Confirm which workshop
 
-If the user already named one, use it. Otherwise list options and ask. If only `sample` exists and the user said "the workshop," use it.
+If the user already named one (e.g. "sample workshop", "mcp workshop"), use it. Otherwise list the available options (`sample` and `mcp-workshop`) with one-line descriptions and ask which one. If the user said "the workshop" without specifying, ask — both exist now and the choice matters.
 
 ### 2. Check prerequisites and probe environment for level signals
 
@@ -85,10 +84,18 @@ Use `mkdir -p` to create the parent dir if needed (e.g. `~/learning-with-court/`
 
 ### 4. Clone the substrate
 
-For the **sample** workshop:
+Pick the right repo for the workshop the user selected in step 1:
+
+```
+Workshop ID → repo slug:
+- sample        → schuettc/learning-with-court-sample-substrate
+- mcp-workshop  → schuettc/learning-with-court-mcp-workshop-substrate
+```
+
+Then clone:
 
 ```bash
-gh repo clone schuettc/learning-with-court-sample-substrate <chosen-path>
+gh repo clone <slug> <chosen-path>
 ```
 
 If the clone fails with a 404 / permission error, the user needs collaborator access on the private repo. Tell them to ask the workshop owner.
@@ -142,7 +149,11 @@ So the handoff is just two commands. Print exactly (using the absolute path — 
 > cd <absolute-path> && claude
 > ```
 >
-> You can exit this Claude Code session first with `/exit` or Cmd-Q. When the new Claude Code session opens in the substrate, type "hi" — the workshop will greet you and offer to install dependencies if needed. Your progress is saved server-side; cross-session resume is automatic.
+> You can exit this Claude Code session first with `/exit` or Cmd-Q. When the new Claude Code session opens in the substrate, type "hi" — the workshop will greet you and offer to install dependencies if needed.
+>
+> ⚠️ **First run notice:** the first time you run `claude` in the substrate, a browser will open for you to sign in to the workshop server (Clerk). It's a one-time sign-in (or sign-up if you don't have an account); after that, the JWT is cached.
+>
+> Your progress is saved server-side; cross-session resume is automatic.
 
 The path must be **absolute** so the user can copy-paste from any terminal location.
 

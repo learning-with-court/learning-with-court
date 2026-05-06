@@ -28,9 +28,18 @@ You don't have to install these up front. Claude will check what's missing and s
 
 | Workshop | What you build | Substrate repo |
 |---|---|---|
-| **sample** | A small MCP server with a Zod-validated tool and a resource (2 lessons, ~15 min). | `schuettc/learning-with-court-sample-substrate` (private — needs collaborator access) |
+| **sample** | A small MCP server with a Zod-validated tool and a resource (2 lessons, ~15 min). | `schuettc/learning-with-court-sample-substrate` |
+| **mcp-workshop** | Build a real MCP server. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). | `schuettc/learning-with-court-mcp-workshop-substrate` |
 
 More workshops land here over time.
+
+## First run: signing in
+
+The first time you run `claude` inside a substrate and the workshop tries to do anything, Claude Code will open a browser to sign you in. The workshop server runs behind Clerk OAuth — you'll either sign into an existing account or create one (sign-up is free).
+
+After sign-in, your JWT is cached locally. Subsequent sessions skip the browser dance until the token expires (typically hours-to-days). If a session needs to re-authenticate, you'll see the browser open again — that's expected.
+
+Your authenticated identity (Clerk `sub`) keys your workshop progress on the server. Take the workshop on a different machine with the same Clerk identity, and your progress is preserved.
 
 ## Notes
 
@@ -49,4 +58,4 @@ A workshop is split in two: **content** (lessons, walker prose, rubrics) lives o
 
 ## Status
 
-Early. One workshop, single-user shared identity, private repos. Auth (Clerk) and a public marketplace publish are the next big pieces.
+Early but real. Two workshops in the catalog (`sample` + `mcp-workshop`). Clerk auth is live — multi-tenant, per-user identity keying server-side progress. The dev environment is deployed at `*.execute-api.us-east-1.amazonaws.com` and is what the substrates point at today. A prod environment is one feature away — gated on provisioning a Clerk prod app.
