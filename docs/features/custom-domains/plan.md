@@ -29,18 +29,19 @@ Configuration extends per-env config: the `Config` interface gains `domainName` 
 - [ ] Step 3: Extend `packages/infra/config/index.ts` `Config` interface with:
   - `hostedZoneId: string` — `Z066768136W6VFQS8UYL5`
   - `hostedZoneName: string` — `workshop.institute`
-  - `domains: { sample: string; mcpWorkshop: string }` — fully-qualified domain names per workshop, env-suffixed.
+  - `domains: { mcpWorkshop: string }` — fully-qualified domain names per workshop, env-suffixed.
 
 - [ ] Step 4: Populate `dev.ts`:
   ```ts
   hostedZoneId: "Z066768136W6VFQS8UYL5",
   hostedZoneName: "workshop.institute",
   domains: {
-    sample: "sample-dev.workshop.institute",
     mcpWorkshop: "mcp-dev.workshop.institute",
   },
   ```
-  And `prod.ts` (with `sample.workshop.institute` / `mcp.workshop.institute`).
+  And `prod.ts` (with `mcp.workshop.institute`).
+
+  > Updated 2026-05-06: sample workshop dropped (see `drop-sample-rename-project` feature). Only mcp-workshop receives a custom domain.
 
 ### Stack updates
 
@@ -52,7 +53,7 @@ Configuration extends per-env config: the `Config` interface gains `domainName` 
   - `route53.ARecord` aliasing `props.domainName` to the new domain (using `ApiGatewayv2DomainProperties` as the alias target)
   - Add a CfnOutput for the custom domain URL so it's easy to find post-deploy
 
-- [ ] Step 7: Pass the new config values from `bin/app.ts` to each stack instantiation. Spike stack uses `config.domains.sample`; mcp-workshop stack uses `config.domains.mcpWorkshop`.
+- [ ] Step 7: Pass the new config values from `bin/app.ts` to the mcp-workshop stack instantiation (`config.domains.mcpWorkshop`). The spike stack no longer exists.
 
 ### Deploy
 
@@ -76,32 +77,29 @@ Configuration extends per-env config: the `Config` interface gains `domainName` 
 
 ### Substrate updates
 
-- [ ] Step 12: Update `learning-with-court-sample-substrate/.mcp.json`:
+- [ ] Step 12: Update `learning-with-court-mcp-workshop/.mcp.json`:
   ```json
   {
     "mcpServers": {
-      "lwc-sample": {
+      "lwc-mcp-workshop": {
         "type": "http",
-        "url": "https://sample-dev.workshop.institute/mcp",
+        "url": "https://mcp-dev.workshop.institute/mcp",
         "oauth": { /* unchanged — clientId, callbackPort, authServerMetadataUrl, scopes */ }
       }
     }
   }
   ```
 
-- [ ] Step 13: Same for `learning-with-court-mcp-workshop-substrate/.mcp.json` → `https://mcp-dev.workshop.institute/mcp`.
-
-- [ ] Step 14: Commit + push both substrates on `feature/custom-domains` branches.
+- [ ] Step 13: Commit + push the project repo on `feature/custom-domains` branch.
 
 ### Verify
 
-- [ ] Step 15: Smoke-test both new domains. Same checks as before but against the friendly URLs:
-  - `curl https://sample-dev.workshop.institute/health` → 200
+- [ ] Step 14: Smoke-test the new domain:
   - `curl https://mcp-dev.workshop.institute/health` → 200
-  - `curl https://sample-dev.workshop.institute/.well-known/oauth-protected-resource` → resource = `https://sample-dev.workshop.institute`
-  - Both stacks return 401 + WWW-Authenticate on `POST /mcp` with no auth.
+  - `curl https://mcp-dev.workshop.institute/.well-known/oauth-protected-resource` → resource = `https://mcp-dev.workshop.institute`
+  - Stack returns 401 + WWW-Authenticate on `POST /mcp` with no auth.
 
-- [ ] Step 16: End-to-end Claude Code test. From a fresh substrate clone (after the .mcp.json swap), confirm OAuth dance still works via the new URL.
+- [ ] Step 15: End-to-end Claude Code test. From a fresh project clone (after the .mcp.json swap), confirm OAuth dance still works via the new URL.
 
 ## Technical Decisions
 

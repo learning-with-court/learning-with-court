@@ -31,9 +31,10 @@ Naming convention (env-in-leaf, flat under base):
 
 | Workshop | Dev URL | Prod URL |
 |---|---|---|
-| sample | `sample-dev.workshop.institute` | `sample.workshop.institute` |
 | mcp-workshop | `mcp-dev.workshop.institute` | `mcp.workshop.institute` |
 | (future workshop X) | `X-dev.workshop.institute` | `X.workshop.institute` |
+
+> Updated 2026-05-06: sample workshop dropped before this feature executed (see `drop-sample-rename-project`). Only mcp-workshop receives a custom domain.
 
 One wildcard cert `*.workshop.institute` (DNS-validated against the existing zone) covers everything. Each stack adds:
 - An ACM cert reference (shared across stacks of the same env or just one wildcard for the account)
