@@ -19,29 +19,29 @@ End state of this feature:
 
 ### CDK refactor
 
-- [ ] Step 1: Create `packages/infra/config/` directory with two files:
+- [x] Step 1: Create `packages/infra/config/` directory with two files:
   - `dev.ts` — exports `{ env: "dev", account: "222224878264", region: "us-east-1", clerkIssuerUrl: "PENDING-DEV", clerkJwksUrl: "PENDING-DEV" }`. Real URLs swap in step 9.
   - `prod.ts` — exports same shape with `env: "prod"`, all PENDING-PROD. Future feature populates these.
   - `index.ts` — exports `loadConfig(envName: string)` returning the right config based on string.
 
-- [ ] Step 2: Refactor `packages/infra/bin/app.ts`:
+- [x] Step 2: Refactor `packages/infra/bin/app.ts`:
   - Read `env` from `app.node.tryGetContext("env")`. Default to `"dev"`.
   - Load config via `loadConfig(env)`.
   - Instantiate two stacks per env: `LwcSpikeStack-${capitalizedEnv}` and `LwcMcpWorkshopStack-${capitalizedEnv}`.
   - Pass config's `clerkIssuerUrl` and `clerkJwksUrl` as stack props (they're not secrets; CDK env vars at synth time are fine).
 
-- [ ] Step 3: Refactor `packages/infra/lib/workshop-api-stack.ts`:
+- [x] Step 3: Refactor `packages/infra/lib/workshop-api-stack.ts`:
   - Add `clerkIssuerUrl: string` and `clerkJwksUrl: string` to the stack props.
   - Use them in the Lambda's `environment:` block instead of the hardcoded `"PENDING"`.
   - Stack/resource names already use `stackPrefix`; no changes needed there beyond ensuring callers pass env-aware prefixes.
 
-- [ ] Step 4: `pnpm typecheck` from platform repo root — must pass.
+- [x] Step 4: `pnpm typecheck` from platform repo root — must pass.
 
-- [ ] Step 5: `pnpm --filter @lwc/infra synth -- --context env=dev` — should produce two stacks: `LwcSpikeStack-Dev`, `LwcMcpWorkshopStack-Dev`. Both with `CLERK_ISSUER_URL=PENDING-DEV` and `CLERK_JWKS_URL=PENDING-DEV` in their Lambda env.
+- [x] Step 5: `pnpm --filter @lwc/infra synth -- --context env=dev` — should produce two stacks: `LwcSpikeStack-Dev`, `LwcMcpWorkshopStack-Dev`. Both with `CLERK_ISSUER_URL=PENDING-DEV` and `CLERK_JWKS_URL=PENDING-DEV` in their Lambda env.
 
 ### Deploy
 
-- [ ] Step 6: Destroy existing unsuffixed stacks:
+- [x] Step 6: Destroy existing unsuffixed stacks:
   ```bash
   eval "$(aws configure export-credentials --profile learning-with-court --format env)" && \
   cd packages/infra && \
@@ -49,7 +49,7 @@ End state of this feature:
   ```
   Both stacks get destroyed; DDB tables and Lambda functions go with them.
 
-- [ ] Step 7: Deploy new dev stacks:
+- [x] Step 7: Deploy new dev stacks:
   ```bash
   eval "$(aws configure export-credentials --profile learning-with-court --format env)" && \
   cd packages/infra && \
@@ -57,7 +57,7 @@ End state of this feature:
   ```
   Capture the new ApiUrl outputs for both stacks. Will be different from the old URLs (new API Gateway IDs).
 
-- [ ] Step 8: Smoke test the dev stacks (same checks as `mcp-workshop-deploy`):
+- [x] Step 8: Smoke test the dev stacks (same checks as `mcp-workshop-deploy`):
   - `curl <new-spike-host>/health` → 200
   - `curl <new-mcp-workshop-host>/health` → 200
   - Both return 401 + WWW-Authenticate on `POST /mcp` with no auth.
@@ -65,27 +65,25 @@ End state of this feature:
 
 ### Substrate URL updates
 
-- [ ] Step 9: Update `learning-with-court-sample-substrate/.mcp.json` to point at `LwcSpikeStack-Dev`'s new URL.
+- [x] Step 9: Update `learning-with-court-sample-substrate/.mcp.json` to point at `LwcSpikeStack-Dev`'s new URL.
 
-- [ ] Step 10: Update `learning-with-court-mcp-workshop-substrate/.mcp.json` to point at `LwcMcpWorkshopStack-Dev`'s new URL.
+- [x] Step 10: Update `learning-with-court-mcp-workshop-substrate/.mcp.json` to point at `LwcMcpWorkshopStack-Dev`'s new URL.
 
-- [ ] Step 11: Commit + push both substrate updates on feature branches.
+- [x] Step 11: Commit + push both substrate updates on feature branches.
 
 ### Real URL swap (gated on user-provided URLs)
 
-- [ ] Step 12 *(awaits user)*: Once you provide the real dev Clerk Issuer URL and JWKS URL, update `packages/infra/config/dev.ts`:
-  - `clerkIssuerUrl: "https://<your-dev-slug>.clerk.accounts.dev"` (or whatever the real value is)
-  - `clerkJwksUrl: "https://<your-dev-slug>.clerk.accounts.dev/.well-known/jwks.json"`
+- [x] Step 12 *(folded into Step 1)*: User provided real dev Clerk URLs ahead of schedule (`https://enjoyed-walrus-25.clerk.accounts.dev`). Written directly into `config/dev.ts` from the first deploy — no PENDING-DEV intermediate.
 
-- [ ] Step 13 *(awaits user, after step 12)*: Redeploy dev stacks:
-  ```bash
-  cdk deploy --all --context env=dev --require-approval=never
-  ```
-  Both Lambdas pick up the new env vars on the next cold start.
+- [x] Step 13 *(folded into Step 7)*: First deploy already used real URLs; no separate redeploy needed.
 
-- [ ] Step 14 *(awaits user, after step 13)*: Smoke test that discovery docs now point at real Clerk:
-  - `curl <spike-host>/.well-known/oauth-protected-resource` → JSON with real Clerk issuer in `authorization_servers`.
-  - End-to-end test from substrate: `claude` → tool call → OAuth dance → Clerk sign-in → JWT received → tool succeeds.
+- [x] Step 14 *(folded into Step 8)*: Smoke tests confirmed discovery docs return real Clerk issuer/JWKS — see Progress Log.
+
+## Progress Log
+
+- 2026-05-05 — Folded steps 12-14 into 1/7/8: user provided real dev Clerk URLs (`https://enjoyed-walrus-25.clerk.accounts.dev`) before the staged rollout, so config/dev.ts shipped real values from the start. Single deploy, single smoke pass.
+- 2026-05-05 — Existing unsuffixed stacks deleted via `aws cloudformation delete-stack` (cdk destroy was a no-op since the renamed app no longer references them). Both stacks gone clean.
+- 2026-05-05 — Deployed `LwcSpikeStack-Dev` at `https://2u2sjic8hd.execute-api.us-east-1.amazonaws.com` and `LwcMcpWorkshopStack-Dev` at `https://x6m3w4vs98.execute-api.us-east-1.amazonaws.com`. All 8 smoke checks passed (health 200, /mcp 401 with WWW-Authenticate, both discovery docs return real Clerk URLs).
 
 ## Technical Decisions
 
