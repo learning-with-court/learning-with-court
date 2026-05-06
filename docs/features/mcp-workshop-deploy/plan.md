@@ -22,9 +22,9 @@ After this refactor, future workshop #3 deployments are one new line in `bin/app
 
 ## Implementation Steps
 
-- [ ] Step 1: Extract `packages/server/src/build-app.ts`. Generic Hono app builder taking `{ workshop: WorkshopDefinition }`. Handles auth, discovery, MCP transport. Returns a Hono root app.
+- [x] Step 1: Extract `packages/server/src/build-app.ts`. Generic Hono app builder taking `{ workshop: WorkshopDefinition }`. Handles auth, discovery, MCP transport. Returns a Hono root app.
 
-- [ ] Step 2: Refactor existing `packages/server/src/handler.ts` to:
+- [x] Step 2: Refactor existing `packages/server/src/handler.ts` to:
   ```ts
   import { sampleWorkshop } from "@lwc-workshops/sample";
   import { buildApp } from "./build-app.js";
@@ -32,40 +32,40 @@ After this refactor, future workshop #3 deployments are one new line in `bin/app
   ```
   Tiny file. All logic moved to build-app.ts.
 
-- [ ] Step 3: Create `packages/server/src/handler-mcp-workshop.ts`:
+- [x] Step 3: Create `packages/server/src/handler-mcp-workshop.ts`:
   ```ts
   import { mcpWorkshop } from "@lwc-workshops/mcp-workshop";
   import { buildApp } from "./build-app.js";
   export const handler = handle(buildApp({ workshop: mcpWorkshop }));
   ```
 
-- [ ] Step 4: Add `@lwc-workshops/mcp-workshop` to `packages/server/package.json`'s dependencies (file: link, mirrors how sample is wired):
+- [x] Step 4: Add `@lwc-workshops/mcp-workshop` to `packages/server/package.json`'s dependencies (file: link, mirrors how sample is wired):
   ```json
   "@lwc-workshops/mcp-workshop": "file:../../../learning-with-court-workshops/workshops/mcp-workshop"
   ```
 
-- [ ] Step 5: Refactor `packages/infra/lib/workshop-api-stack.ts` into a parameterized construct. Takes:
+- [x] Step 5: Refactor `packages/infra/lib/workshop-api-stack.ts` into a parameterized construct. Takes:
   - `stackPrefix: string` (e.g., `"LwcSpike"` or `"LwcMcpWorkshop"`)
   - `entry: string` (path to the Lambda entry handler — `handler.ts` or `handler-mcp-workshop.ts`)
   - Standard CDK `StackProps`
 
   Produces: DDB table (named `${stackPrefix}-Sessions`), Lambda (named `${stackPrefix}-Mcp`), HTTP API (named `${stackPrefix}-Api`), all the existing CfnOutputs.
 
-- [ ] Step 6: Update `bin/app.ts` to instantiate two stacks:
+- [x] Step 6: Update `bin/app.ts` to instantiate two stacks:
   ```ts
   new WorkshopApiStack(app, "LwcSpikeStack", { ..., entry: "..../handler.ts" });
   new WorkshopApiStack(app, "LwcMcpWorkshopStack", { ..., entry: "..../handler-mcp-workshop.ts" });
   ```
 
-- [ ] Step 7: `pnpm typecheck` — must pass for both packages.
+- [x] Step 7: `pnpm typecheck` — must pass for both packages.
 
-- [ ] Step 8: `pnpm --filter @lwc/infra synth` — must pass; both stacks rendered in the CDK output.
+- [x] Step 8: `pnpm --filter @lwc/infra synth` — must pass; both stacks rendered in the CDK output.
 
-- [ ] Step 9: `AWS_PROFILE=learning-with-court pnpm --filter @lwc/infra cdk deploy --all --require-approval=never` — deploys both stacks. The existing LwcSpikeStack should update (it's now using the refactored handler.ts entry); the new LwcMcpWorkshopStack should create.
+- [x] Step 9: `AWS_PROFILE=learning-with-court pnpm --filter @lwc/infra cdk deploy --all --require-approval=never` — deploys both stacks. The existing LwcSpikeStack should update (it's now using the refactored handler.ts entry); the new LwcMcpWorkshopStack should create.
 
-- [ ] Step 10: Capture the new mcp-workshop API URL from CDK outputs. Should be of the form `https://<id>.execute-api.us-east-1.amazonaws.com`.
+- [x] Step 10: Capture the new mcp-workshop API URL from CDK outputs. Should be of the form `https://<id>.execute-api.us-east-1.amazonaws.com`.
 
-- [ ] Step 11: Update `learning-with-court-mcp-workshop-substrate/.mcp.json`:
+- [x] Step 11: Update `learning-with-court-mcp-workshop-substrate/.mcp.json`:
   ```json
   {
     "mcpServers": {
@@ -78,14 +78,14 @@ After this refactor, future workshop #3 deployments are one new line in `bin/app
   ```
   Commit + push this update.
 
-- [ ] Step 12: Smoke test:
+- [x] Step 12: Smoke test:
   - `curl <new-host>/health` → 200
   - `curl -i <new-host>/mcp -X POST -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}' -H "Content-Type: application/json"` → 401 with WWW-Authenticate (because Clerk URLs are still PENDING; that's clerk-deploy-real's job).
   - `curl <new-host>/.well-known/oauth-protected-resource` → returns valid JSON (with PENDING in `authorization_servers`).
 
   All four well-known + 401-flow checks should pass against the new URL, just like they pass against the spike URL today.
 
-- [ ] Step 13: Smoke test the EXISTING spike stack still works (refactor didn't break it):
+- [x] Step 13: Smoke test the EXISTING spike stack still works (refactor didn't break it):
   - `curl https://amd1bq5na7.execute-api.us-east-1.amazonaws.com/health` → 200
   - Same 401 + discovery checks against the spike URL.
 
