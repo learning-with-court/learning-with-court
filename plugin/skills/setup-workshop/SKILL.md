@@ -1,6 +1,6 @@
 ---
 name: setup-workshop
-description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "let's start the mcp workshop", "I want to take the workshop", "begin the lwc workshop", "start a workshop". Drives the clone of the workshop's project codebase and tells the user how to run pnpm install + start a fresh Claude Code session in the cloned dir to begin. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — that means they're already set up).
+description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "help me get started", "set up a workshop", "I want to take a workshop", "start a workshop", "let's start the mcp workshop", "I want to take the workshop", "begin the lwc workshop". Drives the clone of the workshop's project codebase and tells the user how to run pnpm install + start a fresh Claude Code session in the cloned dir to begin. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — that means they're already set up).
 ---
 
 You're setting up a learning-with-court workshop for the user.
@@ -25,7 +25,7 @@ When more workshops land, this list grows.
 
 ### 1. Confirm which workshop
 
-If the user already named one (e.g. "mcp workshop"), use it. Today there is one workshop in the catalog (`mcp-workshop`); if they said "the workshop" without specifying, just go with it. When more workshops exist, list them and ask.
+If the user already named one (e.g. "mcp workshop"), use it. Today there is one workshop in the catalog (`mcp-workshop`) — so if the user used a generic phrase like "help me get started", "set up a workshop", or "I want to take a workshop", default to `mcp-workshop` without asking. Briefly tell them which workshop you're setting up so they're not surprised. When more workshops land in the catalog, list the options and ask.
 
 ### 2. Check prerequisites and probe environment for level signals
 
@@ -65,13 +65,12 @@ Hold the inferred level + the per-signal booleans for use in step 4b.
 
 This is important: do NOT silently default to the current working directory. CWD might be `/tmp` or somewhere ephemeral.
 
-Propose this default:
+Propose this default (pick the form matching the user's OS — see step 5 for OS detection):
 
-```
-$HOME/learning-with-court/<workshop-id>
-```
+- macOS / Linux / WSL: `$HOME/learning-with-court/<workshop-id>` (e.g. `/Users/<name>/learning-with-court/mcp-workshop`)
+- Windows (PowerShell): `%USERPROFILE%\learning-with-court\<workshop-id>` (e.g. `C:\Users\<name>\learning-with-court\mcp-workshop`)
 
-(Resolve `$HOME` with the user's actual home dir.)
+(Resolve `$HOME` / `%USERPROFILE%` with the user's actual home dir.)
 
 Tell the user the proposed path and ask: "Is this OK, or would you like a different location?" Wait for their answer. If they say a path, use it.
 
@@ -133,25 +132,41 @@ Get the ISO timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`. Quoting the values
 isn't required (the hook parses with simple sed/awk), but keep the keys and
 shape exactly as shown — bash YAML parsing is fragile.
 
-### 5. Hand off — just `cd` and `claude`
+### 5. Hand off — `cd`, `pnpm install`, `claude`
 
-**Important:** Don't run `pnpm install` here. Claude Code's auto-mode classifier blocks `pnpm install` when run from a different directory than CC's current working directory (the cross-dir shape is what gets flagged). Once the user is inside the project dir with a fresh `claude` session, the install runs fine.
+**Important:** Don't run `pnpm install` from this session. Claude Code's auto-mode classifier blocks `pnpm install` when run from a different directory than CC's current working directory (the cross-dir shape is what gets flagged). The user runs it themselves, in their own terminal, after `cd`-ing into the project dir.
 
-So the handoff is just two commands. Print exactly (using the absolute path — expand `$HOME` to the real path like `/Users/<name>/...` or `/home/<name>/...`):
+Also: the **shell shape differs by OS**. Bash/zsh use `&&` to chain; PowerShell uses `;` and prefers single-quoted paths. If you don't already know the user's OS, ask up front: "Are you on macOS/Linux (bash/zsh) or Windows (PowerShell)?" — one short question, then emit the right form.
+
+Print exactly (using the absolute path — expand `$HOME` / `%USERPROFILE%` to the real path):
 
 > ✅ Project cloned at `<absolute-path>`. I inferred your level as **`<level>`** based on what's installed in your environment — the workshop will adapt its prose accordingly. You can override anytime by editing `<absolute-path>/.claude/lwc-workshop.local.md` (change the `level:` line to `beginner`, `intermediate`, or `expert`).
 >
-> To start the workshop, copy this into a new terminal:
+> To start the workshop, open a new terminal and run these (copy-paste each line):
 >
+> **macOS / Linux / WSL (bash/zsh):**
 > ```
-> cd <absolute-path> && claude
+> cd <absolute-path>
+> pnpm install
+> claude
 > ```
+> Or chained: `cd <absolute-path> && claude` (run `pnpm install` separately first).
 >
-> You can exit this Claude Code session first with `/exit` or Cmd-Q. When the new Claude Code session opens in the project, type "hi" — the workshop will greet you and offer to install dependencies if needed.
+> **Windows (PowerShell):**
+> ```
+> cd '<absolute-windows-path>'
+> pnpm install
+> claude
+> ```
+> Or chained: `cd '<absolute-windows-path>'; claude` (run `pnpm install` separately first).
+>
+> You can exit this Claude Code session first with `/exit` or Cmd-Q. When the new Claude Code session opens in the project, type "hi" — the workshop will greet you.
 >
 > ⚠️ **First run notice:** the first time you run `claude` in the project, a browser will open for you to sign in to the workshop server (Clerk). It's a one-time sign-in (or sign-up if you don't have an account); after that, the JWT is cached.
 >
 > Your progress is saved server-side; cross-session resume is automatic.
+>
+> If `claude` errors on the MCP server when it starts, double-check you ran it from inside the project directory (`<absolute-path>`) — the workshop's MCP config lives in that dir's `.mcp.json`.
 
 The path must be **absolute** so the user can copy-paste from any terminal location.
 
@@ -169,11 +184,11 @@ If anything goes wrong, be specific about what to do next. Never leave the user 
 
 ## Cross-platform notes
 
-- **macOS, Linux, WSL:** all commands work as written.
-- **Windows native (PowerShell):** `gh`, `pnpm`, `claude` all work; `cd <path> && cmd` works in PowerShell 7+ but the `~/...` shorthand may not expand. Use `$HOME/...` instead, or absolute paths.
+- **macOS, Linux, WSL:** bash/zsh form (`&&` chaining, `$HOME`).
+- **Windows native (PowerShell):** `;` chaining, single-quoted paths for paths with spaces, `%USERPROFILE%` for home. `gh`, `pnpm`, `claude` all work. The `~/...` shorthand may not expand reliably — prefer absolute paths.
 - **Git Bash on Windows:** treat as a Linux shell.
 
-For now, assume bash-compatible shells. If a Windows-native user has trouble, document the issue and recommend WSL until proper PowerShell support lands.
+If you don't know the user's OS, ask up front before emitting the handoff commands (step 5).
 
 ## Future
 
