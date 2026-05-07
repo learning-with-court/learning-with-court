@@ -1,24 +1,23 @@
 ---
 name: setup-workshop
-description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "let's start the mcp workshop", "set up the sample workshop", "I want to take the workshop", "begin the lwc workshop", "start a workshop". Drives the clone of the workshop's substrate codebase and tells the user how to run pnpm install + start a fresh Claude Code session in the cloned dir to begin. Do NOT use this if the user is already inside a workshop substrate (look for a .mcp.json with an `lwc-*` server entry — that means they're already set up).
+description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "let's start the mcp workshop", "I want to take the workshop", "begin the lwc workshop", "start a workshop". Drives the clone of the workshop's project codebase and tells the user how to run pnpm install + start a fresh Claude Code session in the cloned dir to begin. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — that means they're already set up).
 ---
 
 You're setting up a learning-with-court workshop for the user.
 
 ## Background
 
-learning-with-court hosts technical workshops as deployed MCP servers. Each workshop has a *substrate* — a real codebase the learner edits. The substrate is a sibling repo cloned to the learner's machine. Once cloned, the learner runs Claude Code in the substrate directory; the workshop server walks them through.
+learning-with-court hosts technical workshops as deployed MCP servers. Each workshop has a *project* — a real codebase the learner edits. The project is a sibling repo cloned to the learner's machine. Once cloned, the learner runs Claude Code in the project directory; the workshop server walks them through.
 
 This skill handles the clone + handoff. The workshop server itself can't drive the clone — it has no shell access on the learner's machine. The companion plugin (you, right now) is the workshop's "hands" for the setup step.
 
 ## Critical constraint: Claude Code's CWD is fixed
 
-Claude Code's working directory is set at process start; it can't change mid-session. So this skill's job ends at "the substrate is cloned and the user has clear next steps." The learner has to **exit Claude Code and start a new session inside the cloned dir** to actually take the workshop. That handoff is unavoidable.
+Claude Code's working directory is set at process start; it can't change mid-session. So this skill's job ends at "the project is cloned and the user has clear next steps." The learner has to **exit Claude Code and start a new session inside the cloned dir** to actually take the workshop. That handoff is unavoidable.
 
 ## Available workshops
 
-- **sample** — *Sample Workshop: Building an MCP Server*. Two lessons (~15 min). Repo: `schuettc/learning-with-court-sample-substrate`.
-- **mcp-workshop** — *MCP Workshop: Build a Real MCP Server*. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). Repo: `schuettc/learning-with-court-mcp-workshop-substrate`.
+- **mcp-workshop** — *MCP Workshop: Build a Real MCP Server*. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). Repo: `schuettc/learning-with-court-mcp-workshop`.
 
 When more workshops land, this list grows.
 
@@ -26,7 +25,7 @@ When more workshops land, this list grows.
 
 ### 1. Confirm which workshop
 
-If the user already named one (e.g. "sample workshop", "mcp workshop"), use it. Otherwise list the available options (`sample` and `mcp-workshop`) with one-line descriptions and ask which one. If the user said "the workshop" without specifying, ask — both exist now and the choice matters.
+If the user already named one (e.g. "mcp workshop"), use it. Today there is one workshop in the catalog (`mcp-workshop`); if they said "the workshop" without specifying, just go with it. When more workshops exist, list them and ask.
 
 ### 2. Check prerequisites and probe environment for level signals
 
@@ -69,7 +68,7 @@ This is important: do NOT silently default to the current working directory. CWD
 Propose this default:
 
 ```
-$HOME/learning-with-court/<workshop-id>-substrate
+$HOME/learning-with-court/<workshop-id>
 ```
 
 (Resolve `$HOME` with the user's actual home dir.)
@@ -77,19 +76,18 @@ $HOME/learning-with-court/<workshop-id>-substrate
 Tell the user the proposed path and ask: "Is this OK, or would you like a different location?" Wait for their answer. If they say a path, use it.
 
 If the chosen directory already exists:
-- If it's a git repo with origin matching the workshop substrate → say "Looks like the substrate is already cloned at <path>; using it" and skip step 4.
+- If it's a git repo with origin matching the workshop project → say "Looks like the project is already cloned at <path>; using it" and skip step 4.
 - Otherwise → ask: pick a different name, or rename/remove the existing dir manually.
 
 Use `mkdir -p` to create the parent dir if needed (e.g. `~/learning-with-court/`). Cross-platform: works on macOS, Linux, and Git Bash on Windows.
 
-### 4. Clone the substrate
+### 4. Clone the project
 
 Pick the right repo for the workshop the user selected in step 1:
 
 ```
 Workshop ID → repo slug:
-- sample        → schuettc/learning-with-court-sample-substrate
-- mcp-workshop  → schuettc/learning-with-court-mcp-workshop-substrate
+- mcp-workshop  → schuettc/learning-with-court-mcp-workshop
 ```
 
 Then clone:
@@ -100,7 +98,7 @@ gh repo clone <slug> <chosen-path>
 
 If the clone fails with a 404 / permission error, the user needs collaborator access on the private repo. Tell them to ask the workshop owner.
 
-### 4b. Persist the inferred level into the substrate
+### 4b. Persist the inferred level into the project
 
 Write `<chosen-clone-path>/.claude/lwc-workshop.local.md` with YAML
 frontmatter holding the level + signals + an ISO-8601 timestamp. Make sure
@@ -137,11 +135,11 @@ shape exactly as shown — bash YAML parsing is fragile.
 
 ### 5. Hand off — just `cd` and `claude`
 
-**Important:** Don't run `pnpm install` here. Claude Code's auto-mode classifier blocks `pnpm install` when run from a different directory than CC's current working directory (the cross-dir shape is what gets flagged). Once the user is inside the substrate dir with a fresh `claude` session, the install runs fine.
+**Important:** Don't run `pnpm install` here. Claude Code's auto-mode classifier blocks `pnpm install` when run from a different directory than CC's current working directory (the cross-dir shape is what gets flagged). Once the user is inside the project dir with a fresh `claude` session, the install runs fine.
 
 So the handoff is just two commands. Print exactly (using the absolute path — expand `$HOME` to the real path like `/Users/<name>/...` or `/home/<name>/...`):
 
-> ✅ Substrate cloned at `<absolute-path>`. I inferred your level as **`<level>`** based on what's installed in your environment — the workshop will adapt its prose accordingly. You can override anytime by editing `<absolute-path>/.claude/lwc-workshop.local.md` (change the `level:` line to `beginner`, `intermediate`, or `expert`).
+> ✅ Project cloned at `<absolute-path>`. I inferred your level as **`<level>`** based on what's installed in your environment — the workshop will adapt its prose accordingly. You can override anytime by editing `<absolute-path>/.claude/lwc-workshop.local.md` (change the `level:` line to `beginner`, `intermediate`, or `expert`).
 >
 > To start the workshop, copy this into a new terminal:
 >
@@ -149,9 +147,9 @@ So the handoff is just two commands. Print exactly (using the absolute path — 
 > cd <absolute-path> && claude
 > ```
 >
-> You can exit this Claude Code session first with `/exit` or Cmd-Q. When the new Claude Code session opens in the substrate, type "hi" — the workshop will greet you and offer to install dependencies if needed.
+> You can exit this Claude Code session first with `/exit` or Cmd-Q. When the new Claude Code session opens in the project, type "hi" — the workshop will greet you and offer to install dependencies if needed.
 >
-> ⚠️ **First run notice:** the first time you run `claude` in the substrate, a browser will open for you to sign in to the workshop server (Clerk). It's a one-time sign-in (or sign-up if you don't have an account); after that, the JWT is cached.
+> ⚠️ **First run notice:** the first time you run `claude` in the project, a browser will open for you to sign in to the workshop server (Clerk). It's a one-time sign-in (or sign-up if you don't have an account); after that, the JWT is cached.
 >
 > Your progress is saved server-side; cross-session resume is automatic.
 
@@ -159,7 +157,7 @@ The path must be **absolute** so the user can copy-paste from any terminal locat
 
 ### 6. Stop. Don't try to start the workshop.
 
-After step 5, you're done. The deployed workshop server may be available as an MCP server in this session, but the substrate's project-scoped hooks aren't active here — the workshop is designed to run from inside the substrate dir.
+After step 5, you're done. The deployed workshop server may be available as an MCP server in this session, but the project's project-scoped hooks aren't active here — the workshop is designed to run from inside the project dir.
 
 If the user pushes ("let's just start it now"), explain briefly why a fresh session is needed and stop.
 

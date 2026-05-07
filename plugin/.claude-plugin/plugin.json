@@ -1,7 +1,7 @@
 {
   "name": "learning-with-court",
   "version": "0.1.0",
-  "description": "Public-facing entry point for learning-with-court workshops. Provides @setup-workshop to clone a workshop's substrate codebase and configure it for Claude Code so the learner can start a workshop without manually wrangling git, pnpm, and .mcp.json.",
+  "description": "Public-facing entry point for learning-with-court workshops. Provides @setup-workshop to clone a workshop's project codebase and configure it for Claude Code so the learner can start a workshop without manually wrangling git, pnpm, and .mcp.json.",
   "author": { "name": "Court Schuett", "url": "https://github.com/schuettc" },
   "homepage": "https://github.com/schuettc/learning-with-court",
   "repository": "https://github.com/schuettc/learning-with-court",

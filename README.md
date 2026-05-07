@@ -2,6 +2,8 @@
 
 Hosted-MCP workshops driven by Claude Code.
 
+**Start here: <https://workshop.institute>** — sign up free, then come back for the install steps below.
+
 ## Take a workshop
 
 ```
@@ -9,7 +11,7 @@ Hosted-MCP workshops driven by Claude Code.
 2. Type:  /plugin marketplace add schuettc/learning-with-court
 3. Type:  /plugin install learning-with-court@learning-with-court
 4. Type:  /reload-plugins
-5. Tell Claude:  set up the sample workshop
+5. Tell Claude:  set up the mcp workshop
 ```
 
 That's the whole guide. Claude takes it from there — checks your tools, asks where to put the workshop folder, clones it, hands you off to a fresh Claude Code session inside the cloned dir.
@@ -26,16 +28,15 @@ You don't have to install these up front. Claude will check what's missing and s
 
 ## Available workshops
 
-| Workshop | What you build | Substrate repo |
+| Workshop | What you build | Project repo |
 |---|---|---|
-| **sample** | A small MCP server with a Zod-validated tool and a resource (2 lessons, ~15 min). | `schuettc/learning-with-court-sample-substrate` |
-| **mcp-workshop** | Build a real MCP server. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). | `schuettc/learning-with-court-mcp-workshop-substrate` |
+| **mcp-workshop** | Build a real MCP server. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). | `schuettc/learning-with-court-mcp-workshop` |
 
 More workshops land here over time.
 
 ## First run: signing in
 
-The first time you run `claude` inside a substrate and the workshop tries to do anything, Claude Code will open a browser to sign you in. The workshop server runs behind Clerk OAuth — you'll either sign into an existing account or create one (sign-up is free).
+The first time you run `claude` inside a workshop project and the workshop tries to do anything, Claude Code will open a browser to sign you in. The workshop server runs behind Clerk OAuth — you'll either sign into an existing account or create one (sign-up is free).
 
 After sign-in, your JWT is cached locally. Subsequent sessions skip the browser dance until the token expires (typically hours-to-days). If a session needs to re-authenticate, you'll see the browser open again — that's expected.
 
@@ -54,8 +55,8 @@ Your authenticated identity (Clerk `sub`) keys your workshop progress on the ser
 
 ## How it works (one paragraph)
 
-A workshop is split in two: **content** (lessons, walker prose, rubrics) lives on a deployed MCP server we host; **code** (the codebase you edit) lives in a sibling "substrate" repo you clone once. The plugin in this repo handles the clone-and-wire-up step. The substrate ships with its own `.mcp.json` and `.claude/settings.json`, so once you `cd` into it and run `claude`, the workshop greets you and walks the lessons. Server-side state means your progress survives across machines and sessions.
+A workshop is split in two: **content** (lessons, walker prose, rubrics) lives on a deployed MCP server we host; **code** (the codebase you edit) lives in a per-workshop *project* repo you clone once. The plugin in this repo handles the clone-and-wire-up step. The project ships with its own `.mcp.json` and `.claude/settings.json`, so once you `cd` into it and run `claude`, the workshop greets you and walks the lessons. Server-side state means your progress survives across machines and sessions.
 
 ## Status
 
-Early but real. Two workshops in the catalog (`sample` + `mcp-workshop`). Clerk auth is live — multi-tenant, per-user identity keying server-side progress. The dev environment is deployed at `*.execute-api.us-east-1.amazonaws.com` and is what the substrates point at today. A prod environment is one feature away — gated on provisioning a Clerk prod app.
+Early but real. One workshop in the catalog (`mcp-workshop`). Clerk auth is live — multi-tenant, per-user identity keying server-side progress. The dev environment is deployed at `*.execute-api.us-east-1.amazonaws.com` and is what the workshop project points at today. A prod environment is one feature away — gated on provisioning a Clerk prod app.
