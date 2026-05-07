@@ -59,4 +59,11 @@ A workshop is split in two: **content** (lessons, walker prose, rubrics) lives o
 
 ## Status
 
-Early but real. One workshop in the catalog (`mcp-workshop`). Clerk auth is live — multi-tenant, per-user identity keying server-side progress. The dev environment is deployed at `*.execute-api.us-east-1.amazonaws.com` and is what the workshop project points at today. A prod environment is one feature away — gated on provisioning a Clerk prod app.
+Live. One workshop in the catalog (`mcp-workshop`). Both dev and prod environments are deployed:
+
+| Env | Workshop API | Landing |
+|-----|-------------|---------|
+| Prod | `mcp.workshop.institute` | `workshop.institute` |
+| Dev | `mcp-dev.workshop.institute` | `dev.workshop.institute` |
+
+Clerk auth is live on both envs — multi-tenant, per-user identity keying server-side progress. The project repo's `.mcp.json` defaults to prod. E2E content validation (walking lesson 1 as a real learner) is the next open item.
