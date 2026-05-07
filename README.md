@@ -2,6 +2,8 @@
 
 Hosted-MCP workshops driven by Claude Code.
 
+**Start here: <https://workshop.institute>** — sign up free, then come back for the install steps below.
+
 ## Take a workshop
 
 ```
