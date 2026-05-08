@@ -1,23 +1,32 @@
 ---
 name: setup-workshop
-description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "help me get started", "set up a workshop", "I want to take a workshop", "start a workshop", "let's start the mcp workshop", "I want to take the workshop", "begin the lwc workshop". Drives the clone of the workshop's project codebase and tells the user how to run pnpm install + start a fresh Claude Code session in the cloned dir to begin. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — that means they're already set up).
+description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "help me get started", "set up a workshop", "I want to take a workshop", "start a workshop", "let's start the mcp workshop", "I want to take the workshop", "begin the lwc workshop". Drives the clone of the workshop's project codebase via the @learning-with-court/cli into ~/learning-with-court/<workshop-id>/ and tells the user how to start a fresh session there. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
 ---
 
 You're setting up a learning-with-court workshop for the user.
 
 ## Background
 
-learning-with-court hosts technical workshops as deployed MCP servers. Each workshop has a *project* — a real codebase the learner edits. The project is a sibling repo cloned to the learner's machine. Once cloned, the learner runs Claude Code in the project directory; the workshop server walks them through.
+learning-with-court hosts technical workshops as deployed MCP servers. The
+`@learning-with-court/cli` (npm) is the universal entry point — it does
+auth, clone, refresh, registry, and proxies MCP for in-workshop sessions.
+This skill is a thin wrapper that drives the CLI's `setup` subcommand.
 
-This skill handles the clone + handoff. The workshop server itself can't drive the clone — it has no shell access on the learner's machine. The companion plugin (you, right now) is the workshop's "hands" for the setup step.
+By convention, workshops install to `~/learning-with-court/<workshop-id>/`
+and the CLI tracks them in `~/.lwc/workshops.json`. One install root,
+many workshops.
 
 ## Critical constraint: Claude Code's CWD is fixed
 
-Claude Code's working directory is set at process start; it can't change mid-session. So this skill's job ends at "the project is cloned and the user has clear next steps." The learner has to **exit Claude Code and start a new session inside the cloned dir** to actually take the workshop. That handoff is unavoidable.
+Claude Code's working directory is set at process start and can't change
+mid-session. So this skill ends at "the project is cloned and the user
+has a clear `cd && claude` to run." That handoff is unavoidable.
 
 ## Available workshops
 
-- **mcp-workshop** — *MCP Workshop: Build a Real MCP Server*. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). Repo: `schuettc/learning-with-court-mcp-workshop`.
+- **mcp-workshop** — *MCP Workshop: Build a Real MCP Server*. 13 lessons
+  across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy).
+  Repo: private, gated by Clerk sign-in.
 
 When more workshops land, this list grows.
 
@@ -25,90 +34,70 @@ When more workshops land, this list grows.
 
 ### 1. Confirm which workshop
 
-If the user already named one (e.g. "mcp workshop"), use it. Today there is one workshop in the catalog (`mcp-workshop`) — so if the user used a generic phrase like "help me get started", "set up a workshop", or "I want to take a workshop", default to `mcp-workshop` without asking. Briefly tell them which workshop you're setting up so they're not surprised. When more workshops land in the catalog, list the options and ask.
+If the user named one, use it. Today only `mcp-workshop` exists, so for
+generic phrasing default to it without asking. Briefly tell them which
+one you're setting up.
 
-### 2. Check prerequisites and probe environment for level signals
+### 2. Gating prereqs
 
-Run these silently and only surface failures on the **gating** prereqs. The
-remaining checks are *signals* — they don't gate setup, they feed the level
-inference (see step 4b).
+Run silently; surface only failures:
 
-**Gating prereqs** (must pass; surface failures, then stop):
+- `node --version` — must be v20+. If older, recommend nvm.
+- `npx --version` — should be present with any modern Node.
+- `git --version` — must be installed.
 
-- **gh CLI installed:** `gh --version`. If missing → tell them: `brew install gh` (macOS) or see <https://cli.github.com/>.
-- **gh authenticated:** `gh auth status`. If not → tell them to run `gh auth login` and come back.
-- **pnpm installed:** `pnpm --version`. If missing → `npm install -g pnpm`.
-- **node version:** `node --version`. Workshops require Node 20+. If older → tell them to upgrade (recommend nvm).
+That's it. **No `gh` CLI, no GitHub account, no API keys.** First-run
+sign-in happens via browser when the CLI runs.
 
-If everything's there, briefly confirm to the user that prereqs are good and move on. Don't dump version output.
+### 2b. Level signals (informational, no blocking)
 
-**Level signals** (informational only — record pass/fail silently):
+Probe and remember (used in step 4 to write `.claude/lwc-workshop.local.md`):
 
-- `gh`: installed AND `gh auth status` succeeded → true
-- `pnpm`: installed → true
-- `node20+`: `node --version` reports v20 or higher → true
-- `aws_profile`: `aws configure list-profiles` returns at least one profile, OR `~/.aws/config` exists and is non-empty → true
-- `shell_dotfiles`: `~/.zshrc` or `~/.bashrc` exists and is non-zero size → true
-- `gitconfig`: `git config --global user.name` returns a non-empty value → true
+- `gh`: `gh auth status` succeeded → true (only if `gh` exists)
+- `pnpm`: `pnpm --version` succeeded → true
+- `node20+`: yes/no per step 2
+- `aws_profile`: `aws configure list-profiles` returns ≥1 profile, OR `~/.aws/config` is non-empty → true
+- `shell_dotfiles`: `~/.zshrc` or `~/.bashrc` exists and non-empty → true
+- `gitconfig`: `git config --global user.name` returns non-empty → true
 
-Don't ask the user about these; just probe. Failures here are not blockers.
+Inference (count of `true` of 6):
+- 0–1 → `beginner`
+- 2–3 → `intermediate`
+- 4–6 → `expert`
 
-**Inference rule** (count of `true` signals out of 6):
+### 3. Run setup — no path question needed
 
-- 0 or 1 → `beginner`
-- 2 or 3 → `intermediate`
-- 4, 5, or 6 → `expert`
+The CLI installs to `~/learning-with-court/<workshop-id>/` by default.
+This is the right place for almost everyone. Do not ask the user where
+to clone — just tell them where it's going:
 
-Hold the inferred level + the per-signal booleans for use in step 4b.
+> "Setting up `mcp-workshop` at `~/learning-with-court/mcp-workshop/`.
+> First run opens a browser for a one-time sign-in."
 
-### 3. Pick a clone location — ASK the user
-
-This is important: do NOT silently default to the current working directory. CWD might be `/tmp` or somewhere ephemeral.
-
-Propose this default (pick the form matching the user's OS — auto-detect via `uname -s`; see step 5 for the full detection logic):
-
-- macOS / Linux / WSL: `$HOME/learning-with-court/<workshop-id>` (e.g. `/Users/<name>/learning-with-court/mcp-workshop`)
-- Windows (PowerShell): `%USERPROFILE%\learning-with-court\<workshop-id>` (e.g. `C:\Users\<name>\learning-with-court\mcp-workshop`)
-
-(Resolve `$HOME` / `%USERPROFILE%` with the user's actual home dir.)
-
-Tell the user the proposed path and ask: "Is this OK, or would you like a different location?" Wait for their answer. If they say a path, use it.
-
-If the chosen directory already exists:
-- If it's a git repo with origin matching the workshop project → say "Looks like the project is already cloned at <path>; using it" and skip step 4.
-- Otherwise → ask: pick a different name, or rename/remove the existing dir manually.
-
-Use `mkdir -p` to create the parent dir if needed (e.g. `~/learning-with-court/`). Cross-platform: works on macOS, Linux, and Git Bash on Windows.
-
-### 4. Clone the project
-
-Pick the right repo for the workshop the user selected in step 1:
-
-```
-Workshop ID → repo slug:
-- mcp-workshop  → schuettc/learning-with-court-mcp-workshop
-```
-
-Then clone:
+Then run:
 
 ```bash
-gh repo clone <slug> <chosen-path>
+npx -y @learning-with-court/cli@latest setup <workshop-id>
 ```
 
-If the clone fails with a 404 / permission error, the user needs collaborator access on the private repo. Tell them to ask the workshop owner.
+If the user has expressed strong preference for a different location
+(e.g., they explicitly said `~/Projects/...`), pass `--dir <path>`.
 
-### 4b. Persist the inferred level into the project
+If the CLI errors:
+- **"already exists and is not empty":** offer to run `lwc remove <id>` first or pick a different `--dir`.
+- **Sign-in timeout / failed:** ask them to retry; the browser may have closed early.
+- **"PROVISION_FAILED":** the platform couldn't mint a token. Surface the message verbatim.
 
-Write `<chosen-clone-path>/.claude/lwc-workshop.local.md` with YAML
-frontmatter holding the level + signals + an ISO-8601 timestamp. Make sure
-`.claude/` exists (`mkdir -p <chosen-clone-path>/.claude`).
+### 4. Persist level signals
 
-Use this exact shape (substitute the real values you computed in step 2):
+After the CLI finishes, the install path is at the default location
+(or whatever the user chose with `--dir`). Resolve `~` to the actual
+home. Then write `<install-path>/.claude/lwc-workshop.local.md` with:
 
 ```markdown
 ---
 level: intermediate
-inferred_at: 2026-05-05T17:23:00Z
+inferred_at: 2026-05-08T17:23:00Z
 signals:
   gh: true
   pnpm: true
@@ -120,80 +109,60 @@ signals:
 
 # learning-with-court workshop — local config
 
-This file was written by the `setup-workshop` skill based on a probe of your
-environment. The `level:` value tunes how the workshop's walker prose
-addresses you. To override, edit `level:` to one of `beginner`,
-`intermediate`, or `expert`. The hook trusts whatever value is here.
-
-This file is gitignored — it's per-user state, not part of the workshop.
+Written by setup-workshop based on a probe of your environment. Edit
+`level:` to override (`beginner`, `intermediate`, or `expert`).
 ```
 
-Get the ISO timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`. Quoting the values
-isn't required (the hook parses with simple sed/awk), but keep the keys and
-shape exactly as shown — bash YAML parsing is fragile.
+Get the timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`.
 
-### 5. Hand off — `cd` and `claude`
+### 5. Hand off
 
-The **shell shape differs by OS**. Bash/zsh use `&&` to chain; PowerShell uses `;` and prefers single-quoted paths.
+Auto-detect OS via `uname -s`:
+- `Darwin` / `Linux` / `MINGW`/`MSYS`/`CYGWIN` → bash/zsh form (`&&`)
+- otherwise → PowerShell (`;`)
 
-**Auto-detect the OS** with a single Bash call: `uname -s`.
+Print:
 
-- Output starts with `Darwin` or `Linux` (or contains `MINGW`/`MSYS`/`CYGWIN` for Git Bash on Windows) → use the bash/zsh form.
-- Command fails (non-zero exit, or `uname` missing) → assume native Windows / PowerShell.
-- If detection is ambiguous, fall back to asking: "Are you on macOS/Linux (bash/zsh) or Windows (PowerShell)?"
-
-Don't ask the user about their OS if `uname -s` gave a clear answer — just emit the right form below.
-
-Note: we no longer emit `pnpm install` in the handoff. The workshop greeting (which fires on your first message in the new session) detects missing `node_modules` and offers to install for you.
-
-Print exactly (using the absolute path — expand `$HOME` / `%USERPROFILE%` to the real path). The very FIRST line should be the bold sign-in callout — this is the most important thing the user needs to know before they `claude` in:
-
-> **On first launch, type `/mcp` and click sign-in for `lwc-mcp-workshop` — a browser will open.** Sign in (or sign up) via Clerk; you'll stay signed in across sessions after that.
->
-> ✅ Project cloned at `<absolute-path>`. I inferred your level as **`<level>`** based on what's installed in your environment — the workshop will adapt its prose accordingly. You can override anytime by editing `<absolute-path>/.claude/lwc-workshop.local.md` (change the `level:` line to `beginner`, `intermediate`, or `expert`).
+> ✅ `mcp-workshop` installed at `~/learning-with-court/mcp-workshop/`. I inferred your level as **`<level>`** — the workshop will adapt accordingly. Override anytime by editing `.claude/lwc-workshop.local.md`.
 >
 > To start the workshop, open a new terminal and run:
 >
 > **macOS / Linux / WSL (bash/zsh):**
 > ```
-> cd <absolute-path> && claude
+> cd ~/learning-with-court/mcp-workshop && claude
 > ```
 >
 > **Windows (PowerShell):**
 > ```
-> cd '<absolute-windows-path>'; claude
+> cd $env:USERPROFILE\learning-with-court\mcp-workshop; claude
 > ```
 >
-> You can exit this Claude Code session first with `/exit` or Cmd-Q.
+> You can exit this session first with `/exit` or Cmd-Q.
 >
-> **When the new Claude Code session opens, type `hello` to begin.** The workshop will greet you, offer to install dependencies if needed, and start the first lesson.
->
-> Your sign-in is remembered across sessions, and your progress is saved server-side — cross-session resume is automatic.
->
-> If `claude` errors on the MCP server when it starts, double-check you ran it from inside the project directory (`<absolute-path>`) — the workshop's MCP config lives in that dir's `.mcp.json`.
+> **When the new session opens, type `hello` to begin.** The workshop
+> will greet you and start the first lesson.
 
-The path must be **absolute** so the user can copy-paste from any terminal location.
+### 6. Handy follow-ups (don't run unprompted)
 
-### 6. Stop. Don't try to start the workshop.
+If the user asks "what else can I do?":
+- `lwc list` — show installed workshops
+- `lwc update [<id>]` — pull updates
+- `lwc remove <id> [--delete-files]` — uninstall
+- `lwc auth status` — confirm signed in
 
-After step 5, you're done. The deployed workshop server may be available as an MCP server in this session, but the project's project-scoped hooks aren't active here — the workshop is designed to run from inside the project dir.
+### 7. Stop. Don't try to start the workshop.
 
-If the user pushes ("let's just start it now"), explain briefly why a fresh session is needed and stop.
+After step 5, you're done. The workshop runs from inside the cloned
+dir. If the user pushes, briefly explain why a fresh session is needed.
 
 ## Tone
 
-Friendly, direct, brief. Treat the user as possibly non-technical — explain *what* each step does, not just the commands. But don't lecture; the goal is "set up in 30 seconds and out of your hair."
-
-If anything goes wrong, be specific about what to do next. Never leave the user stuck without a clear next action.
+Friendly, direct, brief. The goal is "set up in 30 seconds and out of
+your hair." If anything goes wrong, be specific about what to do next.
 
 ## Cross-platform notes
 
-- **macOS, Linux, WSL:** bash/zsh form (`&&` chaining, `$HOME`).
-- **Windows native (PowerShell):** `;` chaining, single-quoted paths for paths with spaces, `%USERPROFILE%` for home. `gh`, `pnpm`, `claude` all work. The `~/...` shorthand may not expand reliably — prefer absolute paths.
-- **Git Bash on Windows:** treat as a Linux shell.
-
-Auto-detect via `uname -s` (see step 5). Only ask the user if detection is ambiguous.
-
-## Future
-
-When more workshops land, this skill expands its catalog. Multi-workshop projects, repo discovery from a hosted index, an upgrade path from a marketplace — all deferred until v1's one-workshop pattern is stable.
+- The CLI (`@learning-with-court/cli`) is fully cross-platform — pure
+  Node, no shell quirks.
+- Only the `cd && claude` handoff differs per OS; the CLI itself
+  doesn't care.

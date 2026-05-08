@@ -1,25 +1,31 @@
 {
   "name": "learning-with-court",
-  "version": "0.1.0",
-  "description": "Public-facing entry point for learning-with-court workshops. Provides @setup-workshop to clone a workshop's project codebase and configure it for Claude Code so the learner can start a workshop without manually wrangling git, pnpm, and .mcp.json.",
+  "version": "0.2.0",
+  "description": "Public-facing entry point for learning-with-court workshops. Provides @setup-workshop to clone a workshop's project codebase via the @learning-with-court/cli, with browser-based Clerk sign-in.",
   "author": { "name": "Court Schuett", "url": "https://github.com/schuettc" },
-  "homepage": "https://github.com/schuettc/learning-with-court",
-  "repository": "https://github.com/schuettc/learning-with-court",
+  "homepage": "https://github.com/learning-with-court/learning-with-court",
+  "repository": "https://github.com/learning-with-court/learning-with-court",
   "license": "MIT",
   "keywords": ["mcp", "workshop", "claude-code", "tutorial", "learning"],
   "skills": "./skills/",
   "permissions": {
     "allow": [
+      "Bash(node --version)",
+      "Bash(npx --version)",
+      "Bash(git --version)",
+      "Bash(npx -y @learning-with-court/cli@latest:*)",
+      "Bash(uname:*)",
       "Bash(gh --version)",
       "Bash(gh auth status)",
-      "Bash(gh auth status:*)",
-      "Bash(gh repo clone:*)",
       "Bash(pnpm --version)",
-      "Bash(node --version)",
+      "Bash(git config --global user.name)",
+      "Bash(aws configure list-profiles)",
       "Bash(ls:*)",
       "Bash(test -d:*)",
       "Bash(test -e:*)",
-      "Bash(realpath:*)"
+      "Bash(realpath:*)",
+      "Bash(mkdir -p:*)",
+      "Bash(date -u +%Y-%m-%dT%H:%M:%SZ)"
     ]
   }
 }
