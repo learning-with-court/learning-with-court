@@ -8,31 +8,40 @@ Hosted-MCP workshops driven by Claude Code.
 
 ```
 1. Open Claude Code in any directory.
-2. Type:  /plugin marketplace add schuettc/learning-with-court
+2. Type:  /plugin marketplace add learning-with-court/learning-with-court
 3. Type:  /plugin install learning-with-court@learning-with-court
 4. Type:  /reload-plugins
 5. Tell Claude:  set up the mcp workshop
 ```
 
-That's the whole guide. Claude takes it from there — checks your tools, asks where to put the workshop folder, clones it, hands you off to a fresh Claude Code session inside the cloned dir.
+That's the whole guide. Claude takes it from there — checks your tools, runs `npx @learning-with-court/cli setup mcp-workshop`, opens a browser for one-time Clerk sign-in, clones the workshop into `~/learning-with-court/mcp-workshop/`, and hands you off to a fresh Claude Code session inside.
 
-The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — the next workshop only needs step 5.
+The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — additional workshops only need step 5.
 
-## Requirements (Claude helps install missing pieces)
+## Requirements
 
 - **Claude Code** — <https://claude.com/claude-code>
-- **gh CLI** — `brew install gh && gh auth login`
-- **Node 20+** and **pnpm** — `npm install -g pnpm`
+- **Node 20+** — gives you `npx` and `git`. Use nvm if you need to upgrade.
 
-You don't have to install these up front. Claude will check what's missing and show you the command to run.
+That's it. **No `gh` CLI, no GitHub account, no pnpm install up front.** The CLI handles everything; first run prompts a browser sign-in via Clerk.
 
 ## Available workshops
 
-| Workshop | What you build | Project repo |
-|---|---|---|
-| **mcp-workshop** | Build a real MCP server. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). | `schuettc/learning-with-court-mcp-workshop` |
+| Workshop | What you build |
+|---|---|
+| **mcp-workshop** | Build a real MCP server. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). |
 
-More workshops land here over time.
+Workshop project repos are private and gated by Clerk auth — the CLI handles cloning via short-lived GitHub App tokens. More workshops land here over time.
+
+## Other coding agents (Cursor, Codex, Cline, Zed, …)
+
+The marketplace plugin is Claude Code-specific, but the underlying CLI is agent-agnostic. From any terminal:
+
+```
+npx -y @learning-with-court/cli@latest setup mcp-workshop
+```
+
+…then `cd ~/learning-with-court/mcp-workshop` and open the dir in your agent. The cloned `.mcp.json` wires up the workshop server identically for any MCP-capable agent.
 
 ## First run: signing in
 
@@ -44,8 +53,8 @@ Your authenticated identity (Clerk `sub`) keys your workshop progress on the ser
 
 ## Notes
 
-- **You'll run `pnpm install` yourself.** Claude Code's auto-mode classifier blocks `pnpm install` from any context (lifecycle scripts run arbitrary code; CC won't run it for you even with approval). The setup skill clones the workshop and hands you a single chained command: `cd <path> && pnpm install && claude`. Copy-paste once.
-- **Cross-platform.** macOS, Linux, and Windows (WSL or Git Bash) all work today. Native PowerShell is best-effort.
+- **You'll run `pnpm install` yourself once you `cd` in.** Claude Code's auto-mode classifier blocks `pnpm install` from any context (lifecycle scripts run arbitrary code).
+- **Cross-platform.** macOS, Linux, and Windows (WSL or Git Bash) all work. Native PowerShell is best-effort.
 
 ## What's in this repo
 

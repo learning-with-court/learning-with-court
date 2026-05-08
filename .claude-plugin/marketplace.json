@@ -1,15 +1,15 @@
 {
   "name": "learning-with-court",
   "owner": {
-    "name": "Court Schuett",
-    "url": "https://github.com/schuettc"
+    "name": "Learning With Court",
+    "url": "https://github.com/learning-with-court"
   },
   "plugins": [
     {
       "name": "learning-with-court",
       "source": "./plugin",
-      "description": "Entry point for the learning-with-court catalog of hands-on technical workshops. After install, tell Claude Code 'set up the mcp workshop' and the plugin clones the chosen workshop's project codebase, installs deps, and walks you through the restart needed to begin. The actual lessons are driven by the workshop's deployed MCP server, not by this plugin.",
-      "version": "0.1.0"
+      "description": "Entry point for the learning-with-court catalog of hands-on technical workshops. After install, tell Claude Code 'set up the mcp workshop' and the plugin runs @learning-with-court/cli to sign you in (one-time browser flow), clone the workshop into ~/learning-with-court/<id>/, and hand you off to a fresh Claude Code session. Lessons are driven by the workshop's deployed MCP server, not by this plugin.",
+      "version": "0.2.0"
     }
   ]
 }
