@@ -65,7 +65,7 @@ Hold the inferred level + the per-signal booleans for use in step 4b.
 
 This is important: do NOT silently default to the current working directory. CWD might be `/tmp` or somewhere ephemeral.
 
-Propose this default (pick the form matching the user's OS — see step 5 for OS detection):
+Propose this default (pick the form matching the user's OS — auto-detect via `uname -s`; see step 5 for the full detection logic):
 
 - macOS / Linux / WSL: `$HOME/learning-with-court/<workshop-id>` (e.g. `/Users/<name>/learning-with-court/mcp-workshop`)
 - Windows (PowerShell): `%USERPROFILE%\learning-with-court\<workshop-id>` (e.g. `C:\Users\<name>\learning-with-court\mcp-workshop`)
@@ -132,39 +132,43 @@ Get the ISO timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`. Quoting the values
 isn't required (the hook parses with simple sed/awk), but keep the keys and
 shape exactly as shown — bash YAML parsing is fragile.
 
-### 5. Hand off — `cd`, `pnpm install`, `claude`
+### 5. Hand off — `cd` and `claude`
 
-**Important:** Don't run `pnpm install` from this session. Claude Code's auto-mode classifier blocks `pnpm install` when run from a different directory than CC's current working directory (the cross-dir shape is what gets flagged). The user runs it themselves, in their own terminal, after `cd`-ing into the project dir.
+The **shell shape differs by OS**. Bash/zsh use `&&` to chain; PowerShell uses `;` and prefers single-quoted paths.
 
-Also: the **shell shape differs by OS**. Bash/zsh use `&&` to chain; PowerShell uses `;` and prefers single-quoted paths. If you don't already know the user's OS, ask up front: "Are you on macOS/Linux (bash/zsh) or Windows (PowerShell)?" — one short question, then emit the right form.
+**Auto-detect the OS** with a single Bash call: `uname -s`.
 
-Print exactly (using the absolute path — expand `$HOME` / `%USERPROFILE%` to the real path):
+- Output starts with `Darwin` or `Linux` (or contains `MINGW`/`MSYS`/`CYGWIN` for Git Bash on Windows) → use the bash/zsh form.
+- Command fails (non-zero exit, or `uname` missing) → assume native Windows / PowerShell.
+- If detection is ambiguous, fall back to asking: "Are you on macOS/Linux (bash/zsh) or Windows (PowerShell)?"
 
+Don't ask the user about their OS if `uname -s` gave a clear answer — just emit the right form below.
+
+Note: we no longer emit `pnpm install` in the handoff. The workshop greeting (which fires on your first message in the new session) detects missing `node_modules` and offers to install for you.
+
+Print exactly (using the absolute path — expand `$HOME` / `%USERPROFILE%` to the real path). The very FIRST line should be the bold sign-in callout — this is the most important thing the user needs to know before they `claude` in:
+
+> **On first launch, type `/mcp` and click sign-in for `lwc-mcp-workshop` — a browser will open.** Sign in (or sign up) via Clerk; you'll stay signed in across sessions after that.
+>
 > ✅ Project cloned at `<absolute-path>`. I inferred your level as **`<level>`** based on what's installed in your environment — the workshop will adapt its prose accordingly. You can override anytime by editing `<absolute-path>/.claude/lwc-workshop.local.md` (change the `level:` line to `beginner`, `intermediate`, or `expert`).
 >
-> To start the workshop, open a new terminal and run these (copy-paste each line):
+> To start the workshop, open a new terminal and run:
 >
 > **macOS / Linux / WSL (bash/zsh):**
 > ```
-> cd <absolute-path>
-> pnpm install
-> claude
+> cd <absolute-path> && claude
 > ```
-> Or chained: `cd <absolute-path> && claude` (run `pnpm install` separately first).
 >
 > **Windows (PowerShell):**
 > ```
-> cd '<absolute-windows-path>'
-> pnpm install
-> claude
+> cd '<absolute-windows-path>'; claude
 > ```
-> Or chained: `cd '<absolute-windows-path>'; claude` (run `pnpm install` separately first).
 >
-> You can exit this Claude Code session first with `/exit` or Cmd-Q. When the new Claude Code session opens in the project, type "hi" — the workshop will greet you.
+> You can exit this Claude Code session first with `/exit` or Cmd-Q.
 >
-> ⚠️ **First run notice:** the first time you run `claude` in the project, a browser will open for you to sign in to the workshop server (Clerk). It's a one-time sign-in (or sign-up if you don't have an account); after that, the JWT is cached.
+> **When the new Claude Code session opens, type `hello` to begin.** The workshop will greet you, offer to install dependencies if needed, and start the first lesson.
 >
-> Your progress is saved server-side; cross-session resume is automatic.
+> Your sign-in is remembered across sessions, and your progress is saved server-side — cross-session resume is automatic.
 >
 > If `claude` errors on the MCP server when it starts, double-check you ran it from inside the project directory (`<absolute-path>`) — the workshop's MCP config lives in that dir's `.mcp.json`.
 
@@ -188,7 +192,7 @@ If anything goes wrong, be specific about what to do next. Never leave the user 
 - **Windows native (PowerShell):** `;` chaining, single-quoted paths for paths with spaces, `%USERPROFILE%` for home. `gh`, `pnpm`, `claude` all work. The `~/...` shorthand may not expand reliably — prefer absolute paths.
 - **Git Bash on Windows:** treat as a Linux shell.
 
-If you don't know the user's OS, ask up front before emitting the handoff commands (step 5).
+Auto-detect via `uname -s` (see step 5). Only ask the user if detection is ambiguous.
 
 ## Future
 
