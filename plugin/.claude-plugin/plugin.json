@@ -1,7 +1,7 @@
 {
   "name": "learning-with-court",
-  "version": "0.2.0",
-  "description": "Public-facing entry point for learning-with-court workshops. Provides @setup-workshop to clone a workshop's project codebase via the @learning-with-court/cli, with browser-based Clerk sign-in.",
+  "version": "0.3.0",
+  "description": "Public-facing entry point for learning-with-court workshops. Provides @setup-workshop to clone a workshop's project codebase via the locally-installed `lwc` CLI. Requires the CLI to be installed first (one-line installer at https://workshop.institute/install.sh).",
   "author": { "name": "Court Schuett", "url": "https://github.com/schuettc" },
   "homepage": "https://github.com/learning-with-court/learning-with-court",
   "repository": "https://github.com/learning-with-court/learning-with-court",
@@ -11,9 +11,9 @@
   "permissions": {
     "allow": [
       "Bash(node --version)",
-      "Bash(npx --version)",
       "Bash(git --version)",
-      "Bash(npx -y @learning-with-court/cli@latest:*)",
+      "Bash(command -v lwc)",
+      "Bash(lwc:*)",
       "Bash(uname:*)",
       "Bash(gh --version)",
       "Bash(gh auth status)",

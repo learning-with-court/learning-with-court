@@ -45,11 +45,31 @@ one you're setting up.
 Run silently; surface only failures:
 
 - `node --version` — must be v20+. If older, recommend nvm.
-- `npx --version` — should be present with any modern Node.
 - `git --version` — must be installed.
+- **`command -v lwc` — must succeed.** The `lwc` binary (the
+  `@learning-with-court/cli` npm package, installed globally) is the
+  entry point for all workshop operations. If it's missing, do NOT try
+  to fall back to `npx -y` — that path is blocked by Claude Code's
+  auto-mode classifier and produces a worse experience for everyone.
+  Surface this exact message and stop:
+
+  > It looks like `lwc` is not installed. The learning-with-court CLI
+  > needs to be installed once before the plugin can set up workshops.
+  > Run this in your terminal, then say "let's do a workshop" again:
+  >
+  > **macOS / Linux / WSL:**
+  > ```
+  > curl -fsSL https://workshop.institute/install.sh | bash
+  > ```
+  >
+  > **Windows (PowerShell):**
+  > ```
+  > irm https://workshop.institute/install.ps1 | iex
+  > ```
 
 That's it. **No `gh` CLI, no GitHub account, no API keys.** First-run
-sign-in happens via browser when the CLI runs.
+sign-in happens via browser when the CLI runs (or during the install
+script if the user opted into the auth step).
 
 ### 2b. Level signals (informational, no blocking)
 
@@ -87,8 +107,12 @@ Then run (always pass `--dir` so the destination is explicit and the CLI
 output matches what you told the user):
 
 ```bash
-npx -y @learning-with-court/cli@latest setup <workshop-id> --dir <resolved-dest>
+lwc setup <workshop-id> --dir <resolved-dest>
 ```
+
+**Use the bare `lwc` binary, never `npx -y @learning-with-court/cli@latest`.**
+The npx path is blocked by Claude Code's auto-mode classifier; the bare
+binary path is what step 2's prereq check guarantees is on PATH.
 
 The CLI auto-creates parent directories. If the user has expressed a
 different preference (e.g., they explicitly said `~/Projects/...`), honor
