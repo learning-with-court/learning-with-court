@@ -4,7 +4,7 @@ Hosted-MCP workshops driven by Claude Code.
 
 **Start here: <https://workshop.institute>** — sign up free, then come back for the install steps below.
 
-## Take a workshop
+## Start learning
 
 ```
 0. Open a terminal in a folder you want to use for workshops, e.g.:
@@ -18,7 +18,7 @@ Hosted-MCP workshops driven by Claude Code.
 5. Tell Claude:  set up the mcp workshop
 ```
 
-That's the whole guide. Claude takes it from there — checks your tools, runs `npx @learning-with-court/cli setup mcp-workshop --dir <your-folder>/mcp-workshop`, opens a browser for one-time Clerk sign-in, clones the workshop into `<your-folder>/mcp-workshop/` (or `~/learning-with-court/mcp-workshop/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
+That's the whole guide. Claude takes it from there — checks your tools, runs `npx @learning-with-court/cli setup mcp-workshop --dir <your-folder>/mcp-workshop`, opens a browser for one-time sign-in, clones the workshop into `<your-folder>/mcp-workshop/` (or `~/learning-with-court/mcp-workshop/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
 
 The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — additional workshops only need step 5.
 
@@ -27,7 +27,7 @@ The plugin installs at user scope by default, so once you've done steps 1-4 you 
 - **Claude Code** — <https://claude.com/claude-code>
 - **Node 20+** — gives you `npx` and `git`. Use nvm if you need to upgrade.
 
-That's it. **No `gh` CLI, no GitHub account, no pnpm install up front.** The CLI handles everything; first run prompts a browser sign-in via Clerk.
+That's it. **No `gh` CLI, no GitHub account, no pnpm install up front.** The CLI handles everything; first run prompts a browser sign-in.
 
 ## Available workshops
 
@@ -35,7 +35,7 @@ That's it. **No `gh` CLI, no GitHub account, no pnpm install up front.** The CLI
 |---|---|
 | **mcp-workshop** | Build a real MCP server. 13 lessons across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy). |
 
-Workshop project repos are private and gated by Clerk auth — the CLI handles cloning via short-lived GitHub App tokens. More workshops land here over time.
+Workshop project repos are private and gated by your workshop.institute sign-in — the CLI handles cloning via short-lived GitHub App tokens. More workshops land here over time.
 
 ## Other coding agents (Cursor, Codex, Cline, Zed, …)
 
@@ -49,11 +49,11 @@ Add `--dir <path>` if you want it somewhere specific. Then `cd` into the cloned 
 
 ## First run: signing in
 
-The first time you run `claude` inside a workshop project and the workshop tries to do anything, Claude Code will open a browser to sign you in. The workshop server runs behind Clerk OAuth — you'll either sign into an existing account or create one (sign-up is free).
+The first time you run `claude` inside a workshop project and the workshop tries to do anything, Claude Code will open a browser to sign you in. You'll either sign into an existing workshop.institute account or create one (sign-up is free).
 
 After sign-in, your JWT is cached locally. Subsequent sessions skip the browser dance until the token expires (typically hours-to-days). If a session needs to re-authenticate, you'll see the browser open again — that's expected.
 
-Your authenticated identity (Clerk `sub`) keys your workshop progress on the server. Take the workshop on a different machine with the same Clerk identity, and your progress is preserved.
+Your authenticated identity keys your workshop progress on the server. Sign in on a different machine with the same workshop.institute account, and your progress is preserved.
 
 ## Notes
 
@@ -64,7 +64,7 @@ Your authenticated identity (Clerk `sub`) keys your workshop progress on the ser
 
 - [`plugin/`](./plugin) — the Claude Code plugin. Provides `@setup-workshop`.
 - [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) — marketplace metadata.
-- [`docs/`](./docs) — design docs ([VISION](./docs/VISION.md), [ARCHITECTURE](./docs/ARCHITECTURE.md), [REFERENCE_PROJECTS](./docs/REFERENCE_PROJECTS.md), [ROADMAP](./docs/ROADMAP.md)). Not required reading to take a workshop.
+- [`docs/`](./docs) — design docs ([VISION](./docs/VISION.md), [ARCHITECTURE](./docs/ARCHITECTURE.md), [REFERENCE_PROJECTS](./docs/REFERENCE_PROJECTS.md), [ROADMAP](./docs/ROADMAP.md)). Not required reading to start a workshop.
 
 ## How it works (one paragraph)
 
