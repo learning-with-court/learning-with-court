@@ -7,14 +7,18 @@ Hosted-MCP workshops driven by Claude Code.
 ## Take a workshop
 
 ```
-1. Open Claude Code in any directory.
+0. Open a terminal in a folder you want to use for workshops, e.g.:
+     macOS / Linux / WSL:  mkdir -p ~/workshops && cd ~/workshops
+     Windows PowerShell:   mkdir $HOME\workshops; cd $HOME\workshops
+   Any folder works — this becomes the parent for everything you install.
+1. Start Claude Code there:  claude
 2. Type:  /plugin marketplace add learning-with-court/learning-with-court
 3. Type:  /plugin install learning-with-court@learning-with-court
 4. Type:  /reload-plugins
 5. Tell Claude:  set up the mcp workshop
 ```
 
-That's the whole guide. Claude takes it from there — checks your tools, runs `npx @learning-with-court/cli setup mcp-workshop`, opens a browser for one-time Clerk sign-in, clones the workshop into `~/learning-with-court/mcp-workshop/`, and hands you off to a fresh Claude Code session inside.
+That's the whole guide. Claude takes it from there — checks your tools, runs `npx @learning-with-court/cli setup mcp-workshop --dir <your-folder>/mcp-workshop`, opens a browser for one-time Clerk sign-in, clones the workshop into `<your-folder>/mcp-workshop/` (or `~/learning-with-court/mcp-workshop/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
 
 The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — additional workshops only need step 5.
 
@@ -41,7 +45,7 @@ The marketplace plugin is Claude Code-specific, but the underlying CLI is agent-
 npx -y @learning-with-court/cli@latest setup mcp-workshop
 ```
 
-…then `cd ~/learning-with-court/mcp-workshop` and open the dir in your agent. The cloned `.mcp.json` wires up the workshop server identically for any MCP-capable agent.
+Add `--dir <path>` if you want it somewhere specific. Then `cd` into the cloned folder (the CLI prints the exact path) and open it in your agent. The cloned `.mcp.json` wires up the workshop server identically for any MCP-capable agent.
 
 ## First run: signing in
 

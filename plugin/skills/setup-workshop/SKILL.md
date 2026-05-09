@@ -1,6 +1,6 @@
 ---
 name: setup-workshop
-description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "help me get started", "set up a workshop", "I want to take a workshop", "start a workshop", "let's start the mcp workshop", "I want to take the workshop", "begin the lwc workshop". Drives the clone of the workshop's project codebase via the @learning-with-court/cli into ~/learning-with-court/<workshop-id>/ and tells the user how to start a fresh session there. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
+description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "help me get started", "set up a workshop", "I want to take a workshop", "start a workshop", "let's start the mcp workshop", "I want to take the workshop", "begin the lwc workshop". Drives the clone of the workshop's project codebase via the @learning-with-court/cli into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
 ---
 
 You're setting up a learning-with-court workshop for the user.
@@ -12,9 +12,11 @@ learning-with-court hosts technical workshops as deployed MCP servers. The
 auth, clone, refresh, registry, and proxies MCP for in-workshop sessions.
 This skill is a thin wrapper that drives the CLI's `setup` subcommand.
 
-By convention, workshops install to `~/learning-with-court/<workshop-id>/`
-and the CLI tracks them in `~/.lwc/workshops.json`. One install root,
-many workshops.
+By convention, workshops install to `<parent>/<workshop-id>/`. The default
+parent is `~/learning-with-court/`, but if the user is in a sensible working
+directory (e.g. they ran `mkdir ~/workshops && cd ~/workshops` first), use
+that as the parent instead. The CLI tracks installs in
+`~/.lwc/workshops.json` regardless of where they live.
 
 ## Critical constraint: Claude Code's CWD is fixed
 
@@ -65,23 +67,32 @@ Inference (count of `true` of 6):
 - 2–3 → `intermediate`
 - 4–6 → `expert`
 
-### 3. Run setup — no path question needed
+### 3. Decide where to install, then run setup
 
-The CLI installs to `~/learning-with-court/<workshop-id>/` by default.
-This is the right place for almost everyone. Do not ask the user where
-to clone — just tell them where it's going:
+Resolve the install destination:
 
-> "Setting up `mcp-workshop` at `~/learning-with-court/mcp-workshop/`.
-> First run opens a browser for a one-time sign-in."
+1. Get the user's CWD (`pwd` on POSIX; `$PWD` works in PowerShell too).
+   Resolve `~` to the actual home directory.
+2. If CWD looks like a sensible workshops folder — **not** `$HOME` itself,
+   **not** `/`, **not** `~/Desktop`, **not** `~/Downloads`, and is writable —
+   use `<CWD>/<workshop-id>/` as the destination.
+3. Otherwise fall back to `~/learning-with-court/<workshop-id>/`.
 
-Then run:
+Tell the user exactly where it's going in one line, e.g.:
+
+> "Setting up `mcp-workshop` at `<resolved-dest>`. First run opens a
+> browser for a one-time sign-in."
+
+Then run (always pass `--dir` so the destination is explicit and the CLI
+output matches what you told the user):
 
 ```bash
-npx -y @learning-with-court/cli@latest setup <workshop-id>
+npx -y @learning-with-court/cli@latest setup <workshop-id> --dir <resolved-dest>
 ```
 
-If the user has expressed strong preference for a different location
-(e.g., they explicitly said `~/Projects/...`), pass `--dir <path>`.
+The CLI auto-creates parent directories. If the user has expressed a
+different preference (e.g., they explicitly said `~/Projects/...`), honor
+that in `--dir`.
 
 If the CLI errors:
 - **"already exists and is not empty":** offer to run `lwc remove <id>` first or pick a different `--dir`.
@@ -90,9 +101,10 @@ If the CLI errors:
 
 ### 4. Persist level signals
 
-After the CLI finishes, the install path is at the default location
-(or whatever the user chose with `--dir`). Resolve `~` to the actual
-home. Then write `<install-path>/.claude/lwc-workshop.local.md` with:
+After the CLI finishes, use the destination you resolved in step 3 (it's
+also printed verbatim in the CLI's `Done. Open the workshop:` line, and
+recorded in `~/.lwc/workshops.json`). Then write
+`<install-path>/.claude/lwc-workshop.local.md` with:
 
 ```markdown
 ---
@@ -121,20 +133,22 @@ Auto-detect OS via `uname -s`:
 - `Darwin` / `Linux` / `MINGW`/`MSYS`/`CYGWIN` → bash/zsh form (`&&`)
 - otherwise → PowerShell (`;`)
 
-Print:
+Print (substitute `<install-path>` with the actual resolved destination —
+the same one the CLI printed and that's stored in
+`~/.lwc/workshops.json`):
 
-> ✅ `mcp-workshop` installed at `~/learning-with-court/mcp-workshop/`. I inferred your level as **`<level>`** — the workshop will adapt accordingly. Override anytime by editing `.claude/lwc-workshop.local.md`.
+> ✅ `mcp-workshop` installed at `<install-path>`. I inferred your level as **`<level>`** — the workshop will adapt accordingly. Override anytime by editing `.claude/lwc-workshop.local.md`.
 >
 > To start the workshop, open a new terminal and run:
 >
 > **macOS / Linux / WSL (bash/zsh):**
 > ```
-> cd ~/learning-with-court/mcp-workshop && claude
+> cd <install-path> && claude
 > ```
 >
 > **Windows (PowerShell):**
 > ```
-> cd $env:USERPROFILE\learning-with-court\mcp-workshop; claude
+> cd <install-path-with-backslashes>; claude
 > ```
 >
 > You can exit this session first with `/exit` or Cmd-Q.
