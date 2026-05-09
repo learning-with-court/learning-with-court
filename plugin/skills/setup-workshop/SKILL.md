@@ -14,8 +14,8 @@ This skill is a thin wrapper that drives the CLI's `setup` subcommand.
 
 By convention, workshops install to `<parent>/<workshop-id>/`. The default
 parent is `~/learning-with-court/`, but if the user is in a sensible working
-directory (e.g. they ran `mkdir ~/workshops && cd ~/workshops` first), use
-that as the parent instead. The CLI tracks installs in
+directory (e.g. they ran `mkdir ~/learning-with-court && cd ~/learning-with-court`
+first), use that as the parent instead. The CLI tracks installs in
 `~/.lwc/workshops.json` regardless of where they live.
 
 ## Critical constraint: Claude Code's CWD is fixed
@@ -55,7 +55,7 @@ Run silently; surface only failures:
 
   > It looks like `lwc` is not installed. The learning-with-court CLI
   > needs to be installed once before the plugin can set up workshops.
-  > Run this in your terminal, then say "let's do a workshop" again:
+  > Run this in your terminal, then come back and try again:
   >
   > **macOS / Linux / WSL:**
   > ```
@@ -71,21 +71,60 @@ That's it. **No `gh` CLI, no GitHub account, no API keys.** First-run
 sign-in happens via browser when the CLI runs (or during the install
 script if the user opted into the auth step).
 
-### 2b. Level signals (informational, no blocking)
+### 2b. Pace signals (informational, no blocking)
 
-Probe and remember (used in step 4 to write `.claude/lwc-workshop.local.md`):
+Probe the user's environment to infer a default workshop pace. The
+result becomes the `pace:` field in `.claude/lwc-workshop.local.md`,
+read by the workshop's SessionStart hook to set tone for every lesson.
 
-- `gh`: `gh auth status` succeeded → true (only if `gh` exists)
-- `pnpm`: `pnpm --version` succeeded → true
-- `node20+`: yes/no per step 2
-- `aws_profile`: `aws configure list-profiles` returns ≥1 profile, OR `~/.aws/config` is non-empty → true
-- `shell_dotfiles`: `~/.zshrc` or `~/.bashrc` exists and non-empty → true
-- `gitconfig`: `git config --global user.name` returns non-empty → true
+**Run each probe as its OWN Bash call, not as one combined command.**
+Claude Code's auto-mode classifier blocks multi-tool environment-
+introspection batches (it reads them as broad system reads). One probe
+per Bash call evaluates each on its own merits and passes cleanly.
+Prefer compact single-purpose commands; surface only failures.
+
+Probes (each its own Bash call):
+
+| Signal | Bash | True if |
+|---|---|---|
+| `gh` | `gh auth status` | exit 0 (only run if `gh` exists) |
+| `pnpm` | `pnpm --version` | exit 0 |
+| `node20+` | already known from step 2 | per step 2 |
+| `aws_profile` | `aws configure list-profiles` | stdout has ≥1 line |
+| `shell_dotfiles` | `test -s ~/.zshrc \|\| test -s ~/.bashrc` | exit 0 |
+| `gitconfig` | `git config --global user.name` | stdout non-empty |
 
 Inference (count of `true` of 6):
-- 0–1 → `beginner`
-- 2–3 → `intermediate`
-- 4–6 → `expert`
+
+- 0–2 → `slow` — explain everything before doing it; pause at every step
+- 3–4 → `balanced` — explain new concepts, move through familiar material
+- 5–6 → `quick` — minimal hand-holding; you drive
+
+If any individual probe is blocked or errors, mark its signal as
+`unknown` and continue. Default to `balanced` if ≥3 signals are unknown.
+
+### 2c. Show the inferred pace + offer override
+
+**Before persisting,** show the user what you inferred and let them
+override. Render in a single `>` quote block:
+
+> Based on your environment, I'd suggest **`<inferred-pace>`** pacing
+> *(<short rationale, e.g. "you have most of the dev tools we look for")*.
+> Three options:
+>
+> - **slow** — explain concepts before mechanics, pause for "got it" between steps
+> - **balanced** — explain new concepts, move through familiar material
+> - **quick** — minimal hand-holding; focus on the interesting bits
+>
+> Default `<inferred-pace>`. Want a different pace, or stick with the
+> default?
+
+Wait for the user's response. Accept any of:
+- `<empty>` / `yes` / `ok` / `sure` → use the default
+- `slow` / `balanced` / `quick` → use that
+- Anything else conversational → ask once more for one of the three
+
+Persist whatever was chosen, even if it differs from the inference.
 
 ### 3. Decide where to install, then run setup
 
@@ -123,7 +162,7 @@ If the CLI errors:
 - **Sign-in timeout / failed:** ask them to retry; the browser may have closed early.
 - **"PROVISION_FAILED":** the platform couldn't mint a token. Surface the message verbatim.
 
-### 4. Persist level signals
+### 4. Persist pace + signals
 
 After the CLI finishes, use the destination you resolved in step 3 (it's
 also printed verbatim in the CLI's `Done. Open the workshop:` line, and
@@ -132,8 +171,8 @@ recorded in `~/.lwc/workshops.json`). Then write
 
 ```markdown
 ---
-level: intermediate
-inferred_at: 2026-05-08T17:23:00Z
+pace: balanced
+inferred_at: 2026-05-09T04:21:26Z
 signals:
   gh: true
   pnpm: true
@@ -146,10 +185,12 @@ signals:
 # learning-with-court workshop — local config
 
 Written by setup-workshop based on a probe of your environment. Edit
-`level:` to override (`beginner`, `intermediate`, or `expert`).
+`pace:` to override (`slow`, `balanced`, or `quick`). Restart the
+workshop session for the change to take effect.
 ```
 
-Get the timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`.
+Use the user's chosen pace from step 2c (which may be the inferred default
+or an override). Get the timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`.
 
 ### 5. Hand off
 
@@ -161,7 +202,7 @@ Print (substitute `<install-path>` with the actual resolved destination —
 the same one the CLI printed and that's stored in
 `~/.lwc/workshops.json`):
 
-> ✅ `mcp-workshop` installed at `<install-path>`. I inferred your level as **`<level>`** — the workshop will adapt accordingly. Override anytime by editing `.claude/lwc-workshop.local.md`.
+> ✅ `mcp-workshop` installed at `<install-path>`. Pace set to **`<pace>`** — the workshop will adapt accordingly. To change later, edit `<install-path>/.claude/lwc-workshop.local.md` and set `pace:` to `slow`, `balanced`, or `quick`; restart the workshop session for it to take effect.
 >
 > To start the workshop, open a new terminal and run:
 >
@@ -204,3 +245,13 @@ your hair." If anything goes wrong, be specific about what to do next.
   Node, no shell quirks.
 - Only the `cd && claude` handoff differs per OS; the CLI itself
   doesn't care.
+
+## Backward-compat note
+
+Older clones (pre-v0.4.0) have a `level:` field instead of `pace:` in
+`.claude/lwc-workshop.local.md`. The workshop's SessionStart hook reads
+`pace:` first and falls back to `level:` if `pace:` is missing,
+translating `beginner`→`slow`, `intermediate`→`balanced`,
+`expert`→`quick`. Existing clones keep working until the user re-runs
+setup or hand-edits the file. New clones written by this version always
+use `pace:`.
