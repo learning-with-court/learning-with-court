@@ -1,0 +1,9 @@
+# Mirrors .github/workflows/validate.yml. Plugin manifest validation is
+# the only check that exists today; runs on any plugin/marketplace change.
+# Skip: `LEFTHOOK=0 git commit ...` or `--no-verify`.
+
+pre-commit:
+  commands:
+    validate-plugin:
+      glob: "{.claude-plugin/**,plugin/**,scripts/validate-plugin.mjs}"
+      run: node scripts/validate-plugin.mjs

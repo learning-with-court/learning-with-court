@@ -1,0 +1,13 @@
+{
+  "name": "learning-with-court-plugin",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tooling shell for the Claude Code plugin + marketplace. Holds lefthook + validation scripts; the plugin itself ships from plugin/.",
+  "scripts": {
+    "validate": "node scripts/validate-plugin.mjs",
+    "postinstall": "lefthook install"
+  },
+  "devDependencies": {
+    "lefthook": "^2.1.6"
+  }
+}
