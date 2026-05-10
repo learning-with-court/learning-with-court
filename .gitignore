@@ -1,3 +1,6 @@
 
 # Auto-generated locally by hooks — not committed
 docs/features/DASHBOARD.md
+
+# Tooling deps (lefthook etc.)
+node_modules/
