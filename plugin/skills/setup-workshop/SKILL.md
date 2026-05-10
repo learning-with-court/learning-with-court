@@ -1,6 +1,6 @@
 ---
 name: setup-workshop
-description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "I'd like to learn how to build an MCP server", "I want to learn MCP", "teach me MCP", "help me get started", "set up a workshop", "start a workshop", "let's start the mcp workshop", "begin the lwc workshop", or any "I'd like to learn <topic>" / "I want to learn how to <build X>" phrasing where <topic> matches an available workshop. Drives the clone of the workshop's project codebase via the @learning-with-court/cli into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
+description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "I'd like to learn <topic>", "I want to learn how to <build X>", "teach me <topic>", "help me get started", "set up a workshop", "start a workshop", "set up the <name> workshop", "begin the lwc workshop". The list of available workshops is fetched live from `lwc catalog`; match the user's request against returned workshop ids/titles/tags. Drives the clone of the workshop's project codebase via the @learning-with-court/cli into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
 ---
 
 You're setting up a learning-with-court workshop for the user.
@@ -26,19 +26,31 @@ has a clear `cd && claude` to run." That handoff is unavoidable.
 
 ## Available workshops
 
-- **mcp-workshop** — *MCP Workshop: Build a Real MCP Server*. 13 lessons
-  across 3 phases (A: stdio basics; B: auth + HTTP; C: AWS deploy).
-  Repo: private, gated by Clerk sign-in.
+The current catalog is fetched live by the CLI. Run this in Bash to see
+what's available in the user's environment:
 
-When more workshops land, this list grows.
+```bash
+lwc catalog
+```
+
+Each entry includes a `Trigger:` phrase showing the install phrasing the
+user might say. Match the user's request to one of the returned `id`s:
+
+- If the user named a workshop (id or title fragment), match directly.
+- If the user's phrasing is generic ("I want to learn MCP"), pick the
+  workshop whose tags or title fits. If multiple match, list candidates
+  and ask the user to pick.
+- If the user named a workshop that's `(coming soon)`, tell them politely
+  it isn't ready yet — don't try to set it up.
 
 ## Steps
 
 ### 1. Confirm which workshop
 
-If the user named one, use it. Today only `mcp-workshop` exists, so for
-generic phrasing default to it without asking. Briefly tell them which
-one you're setting up.
+Run `lwc catalog` and resolve the user's request to a single workshop id
+using the matching rules above. If only one workshop is available and the
+user's phrasing is generic, default to it without asking. Briefly tell
+them which one you're setting up.
 
 ### 2. Gating prereqs
 
