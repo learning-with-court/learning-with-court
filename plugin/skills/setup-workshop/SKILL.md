@@ -56,15 +56,40 @@ user might say. Match the user's request to one of the returned `id`s:
 
 ### 1. Confirm which workshop (NON-OPTIONAL — never skip)
 
-Run `lwc catalog` first, before any other step. Parse the output. Apply
-the matching rules above. The user should ALWAYS see what's in the
-catalog OR a clear statement of which workshop you're about to install
-and what it teaches.
+**Run `lwc catalog` FIRST, before any other step.** Parse the output.
+Apply the matching rules above. The user should ALWAYS see what's in
+the catalog OR a clear statement of which workshop you're about to
+install and what it teaches.
 
 **Never go to Step 2 without having either listed the catalog to the
 user OR confirmed an unambiguous single match.** Semantic guesses are
 not confirmation; if you "feel" you know the answer without enumerating
-the catalog, you're skipping Step 1.
+the catalog, you're skipping Step 1 — go back and run `lwc catalog`.
+
+This rule has two failure modes that get hit in practice and that you
+MUST avoid:
+
+1. **User says the install.sh example phrase verbatim** ("I'd like to
+   learn how to build an MCP server"). That phrase is anchoring copy
+   from the landing page — treat it like any other natural-language
+   request. Run `lwc catalog`, see what's available, list candidates
+   if MCP-anything matches more than one workshop, ask. Do NOT
+   default-pick `mcp-workshop` without listing the catalog just
+   because the words "MCP server" are present.
+2. **User says something generic** ("I'd like to start a workshop",
+   "what workshops are there?", "let's begin"). Generic phrasing
+   means intent isn't established. Run `lwc catalog`, list every
+   workshop with one-line titles, ask.
+
+If you've run `lwc catalog` and the catalog has exactly one workshop
+in `status: available` AND the user named a topic that's unambiguous
+for that workshop, default-picking is fine. In every other case, ask.
+
+If `lwc env switch dev` is active, the catalog you fetch reflects the
+dev set. Mention the active env in your confirmation when it's not
+prod — e.g. "Setting up `evals-workshop` (from the dev catalog) at
+`<path>`." Get the active env from `lwc env current` if you need to
+double-check; the catalog's URL already reflects the same setting.
 
 ### 2. Gating prereqs
 
@@ -72,15 +97,15 @@ Run silently; surface only failures:
 
 - `node --version` — must be v20+. If older, recommend nvm.
 - `git --version` — must be installed.
-- **`command -v lwc` — must succeed.** Do NOT call `lwc --version` —
-  the CLI doesn't expose one, the command exits non-zero, and the
-  failure contradicts any "prereqs pass" narration. `command -v lwc`
-  alone is the gating check. The `lwc` binary (the
-  `@learning-with-court/cli` npm package, installed globally) is the
-  entry point for all workshop operations. If it's missing, do NOT try
-  to fall back to `npx -y` — that path is blocked by Claude Code's
-  auto-mode classifier and produces a worse experience for everyone.
-  Surface this exact message and stop:
+- **`command -v lwc` — must succeed.** This is the gating check; pass
+  ONLY when the binary exists on PATH. `lwc --version` is supported
+  (CLI ≥ 0.3.1) and useful for displaying the version informationally,
+  but don't conflate the two — `command -v lwc` is the existence test.
+  The `lwc` binary (the `@learning-with-court/cli` npm package,
+  installed globally) is the entry point for all workshop operations.
+  If it's missing, do NOT try to fall back to `npx -y` — that path is
+  blocked by Claude Code's auto-mode classifier and produces a worse
+  experience for everyone. Surface this exact message and stop:
 
   > It looks like `lwc` is not installed. The learning-with-court CLI
   > needs to be installed once before the plugin can set up workshops.
