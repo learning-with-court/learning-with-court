@@ -9,7 +9,7 @@
       "name": "learning-with-court",
       "source": "./plugin",
       "description": "Entry point for the learning-with-court catalog of hands-on technical workshops. After install, tell Claude Code 'set up the mcp workshop' and the plugin runs @learning-with-court/cli to sign you in (one-time browser flow), clone the workshop into ~/learning-with-court/<id>/, and hand you off to a fresh Claude Code session. Lessons are driven by the workshop's deployed MCP server, not by this plugin.",
-      "version": "0.2.0"
+      "version": "0.4.1"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "name": "learning-with-court",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Public-facing entry point for learning-with-court workshops. Provides @setup-workshop to clone a workshop's project codebase via the locally-installed `lwc` CLI, infers and confirms a workshop pace (slow/balanced/quick), then writes a per-clone config. Requires the CLI to be installed first (one-line installer at https://workshop.institute/install.sh).",
   "author": { "name": "Court Schuett", "url": "https://github.com/schuettc" },
   "homepage": "https://github.com/learning-with-court/learning-with-court",
