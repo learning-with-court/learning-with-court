@@ -36,21 +36,35 @@ lwc catalog
 Each entry includes a `Trigger:` phrase showing the install phrasing the
 user might say. Match the user's request to one of the returned `id`s:
 
-- If the user named a workshop (id or title fragment), match directly.
-- If the user's phrasing is generic ("I want to learn MCP"), pick the
-  workshop whose tags or title fits. If multiple match, list candidates
-  and ask the user to pick.
-- If the user named a workshop that's `(coming soon)`, tell them politely
-  it isn't ready yet — don't try to set it up.
+- **If the user named a workshop** (id or title fragment), confirm the
+  match by stating which one and what it teaches; ask only if their
+  phrasing is ambiguous.
+- **If the user's phrasing is generic** ("I want to learn about X",
+  "start a workshop", "let's begin"), list ALL available workshops with
+  one-line titles and ask which one they want. Do NOT auto-pick even if
+  one workshop is a strong tag/title match — generic phrasing means
+  intent isn't established.
+- **If only ONE workshop is in the catalog AND the user named it or
+  used a topic word that's unambiguous for that workshop**, default-pick
+  it but say the workshop title + one-line summary in your confirmation
+  so the user can correct.
+- **If multiple workshops match**, list candidates and ask.
+- **If the user named a workshop that's `(coming soon)`**, tell them
+  politely it isn't ready yet — don't try to set it up.
 
 ## Steps
 
-### 1. Confirm which workshop
+### 1. Confirm which workshop (NON-OPTIONAL — never skip)
 
-Run `lwc catalog` and resolve the user's request to a single workshop id
-using the matching rules above. If only one workshop is available and the
-user's phrasing is generic, default to it without asking. Briefly tell
-them which one you're setting up.
+Run `lwc catalog` first, before any other step. Parse the output. Apply
+the matching rules above. The user should ALWAYS see what's in the
+catalog OR a clear statement of which workshop you're about to install
+and what it teaches.
+
+**Never go to Step 2 without having either listed the catalog to the
+user OR confirmed an unambiguous single match.** Semantic guesses are
+not confirmation; if you "feel" you know the answer without enumerating
+the catalog, you're skipping Step 1.
 
 ### 2. Gating prereqs
 
@@ -58,7 +72,10 @@ Run silently; surface only failures:
 
 - `node --version` — must be v20+. If older, recommend nvm.
 - `git --version` — must be installed.
-- **`command -v lwc` — must succeed.** The `lwc` binary (the
+- **`command -v lwc` — must succeed.** Do NOT call `lwc --version` —
+  the CLI doesn't expose one, the command exits non-zero, and the
+  failure contradicts any "prereqs pass" narration. `command -v lwc`
+  alone is the gating check. The `lwc` binary (the
   `@learning-with-court/cli` npm package, installed globally) is the
   entry point for all workshop operations. If it's missing, do NOT try
   to fall back to `npx -y` — that path is blocked by Claude Code's
