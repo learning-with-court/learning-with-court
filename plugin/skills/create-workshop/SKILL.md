@@ -209,9 +209,10 @@ Questions:
 
 ## Render the plan
 
-Once all six phases are done, write `docs/WORKSHOP_PLAN.md` to the
-author's current directory (the not-yet-created workshop will move it
-in later). Use this template, populated from the answers:
+Once all six phases are done, write `WORKSHOP_PLAN.md` to
+`learning-with-court-base/` (the coordination repo's root — this skill
+is invoked from there). The scaffolding step will move it into the new
+workshop's `docs/` dir. Use this template, populated from the answers:
 
 ```markdown
 # Workshop Plan: <workshop-id>
@@ -284,8 +285,9 @@ this." Agent never shell-checks for API key.
 *Plan created via the `create-workshop` plugin skill.*
 ```
 
-Save it to the author's working directory as `WORKSHOP_PLAN.md` for now
-(it'll move into `docs/` inside the workshop repo once scaffolding runs).
+Save it to `learning-with-court-base/WORKSHOP_PLAN.md` for now (it'll
+move into `learning-with-court-<id>/docs/WORKSHOP_PLAN.md` once
+scaffolding runs).
 
 ## Approval gate
 
@@ -316,28 +318,53 @@ Confirm the exact `<id>` with the author before running `gh repo create` —
 this is the one human-in-the-loop step in scaffolding. Do NOT default
 to a generated name.
 
-1. **Fork the template.** After the author confirms `<id>`:
+**Clone location (binding).** The new workshop is cloned **inside the
+`learning-with-court-base/` coordination repo**, as a sibling of the
+other workshops:
+```
+learning-with-court-base/
+├── learning-with-court-mcp-workshop/
+├── learning-with-court-evals-workshop/
+├── learning-with-court-workshop-template/
+└── learning-with-court-<id>/    ← new clone goes here
+```
+Local directory name has the `learning-with-court-` prefix (matches the
+other workshops' local dir names); the **remote** name on GitHub does
+not (it's just `<id>`). `learning-with-court-base/.gitignore` already
+ignores `learning-with-court-*/` so the new clone doesn't pollute the
+base repo. Do NOT clone into the author's cwd, `~/`, or anywhere else —
+the base repo is the coordination root and every workshop lives under it.
+
+The variable `<local-dir>` below stands for `learning-with-court-<id>`.
+
+1. **Fork the template.** After the author confirms `<id>`, run from
+   `learning-with-court-base/`:
    ```bash
    gh repo create learning-with-court/<id> \
      --template learning-with-court/workshop-template \
-     --private --clone
+     --private
+   git clone git@github.com:learning-with-court/<id>.git learning-with-court-<id>
    ```
    Default to `--private`; the author flips to public when ready.
-   Clone lands as `./<id>/` in the current working directory.
+   Two-step (create-then-clone, no `--clone` flag) so the local
+   directory name carries the `learning-with-court-` prefix while the
+   remote stays as `<id>`. Clone lands at
+   `learning-with-court-base/learning-with-court-<id>/`.
 
 2. **Move `WORKSHOP_PLAN.md` into the new repo:**
    ```bash
-   mv WORKSHOP_PLAN.md <id>/docs/WORKSHOP_PLAN.md
+   mv WORKSHOP_PLAN.md learning-with-court-<id>/docs/WORKSHOP_PLAN.md
    ```
 
-3. **Populate `<id>/workshop.yaml`** from the plan's outputs:
-   `id`, `title`, `tagline`, `summary`, `difficulty`, `duration`, `tags`,
-   `youWillBuild`, `prerequisites`, `phases`. Fill every TODO. Keep
-   `status: coming-soon` until the workshop ships.
+3. **Populate `learning-with-court-<id>/workshop.yaml`** from the
+   plan's outputs: `id`, `title`, `tagline`, `summary`, `difficulty`,
+   `tags`, `youWillBuild`, `prerequisites`, `phases`. Fill every TODO.
+   Keep `status: coming-soon` until the workshop ships. (No `duration`
+   field — it was removed from the template manifest.)
 
-4. **Populate `<id>/landing.md`** from the plan's scope + lesson list.
-   Long-form prose: what the learner builds, how it works (per-lesson
-   loop), who it's for.
+4. **Populate `learning-with-court-<id>/landing.md`** from the plan's
+   scope + lesson list. Long-form prose: what the learner builds, how
+   it works (per-lesson loop), who it's for.
 
 5. **Create empty lesson directories** via the generator — do NOT
    hand-copy the template. For each lesson in the plan:
@@ -427,7 +454,7 @@ For lesson Ln:
      framing per `drop-internal-history-voice` — never narrate the
      workshop's authoring history.)
 
-7. **`<id>/.claude/skills/lesson-NN.md`** — the walker skill. The
+7. **`learning-with-court-<id>/.claude/skills/lesson-NN.md`** — the walker skill. The
    `pnpm new-lesson` generator already stamps the frontmatter + slim
    shape; you're filling in the per-lesson content. Required shape:
    - **Frontmatter** (generator-stamped, you adjust trigger phrases):
@@ -487,7 +514,7 @@ Wait for the author. Common author responses + how to handle them:
 Run validation:
 
 ```bash
-cd <id>/
+cd learning-with-court-<id>/
 pnpm install
 pnpm lint-manifest             # cross-checks workshop.yaml against fs
 pnpm sync-workshop-yaml --check # exits non-zero if manifest drifted from fs
@@ -506,7 +533,7 @@ message.
 Once every lesson is drafted, reviewed by the author, and the validation
 commands pass, deliver this message verbatim:
 
-> Workshop repo scaffolded and lessons drafted at `<id>/`. Remaining
+> Workshop repo scaffolded and lessons drafted at `learning-with-court-<id>/` (remote: `learning-with-court/<id>`). Remaining
 > manual steps (these involve org-admin or learner-side actions you
 > need to drive):
 >
