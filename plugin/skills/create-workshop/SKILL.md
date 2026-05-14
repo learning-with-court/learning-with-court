@@ -126,17 +126,35 @@ Questions:
    If an author can't name the canonical pattern, that's the signal
    to slow down — the pattern needs to be picked *now*, not after
    four lessons are shipped.
-2. **Cross-lesson coherence.** Which patterns ripple through multiple
+2. **Canonical reference implementation per lesson.** For every
+   **write-pedagogy** lesson: what's the canonical reference
+   implementation — the authoritative answer to whatever the learner's
+   TODO replaces? This ships as `src/canonical.<ext>` alongside the
+   learner's target file, and CI runs **both** the canonical and the
+   learner's filled-in target against the same fixtures and asserts
+   both match `expected.json`. This catches three drift modes the
+   current tests miss: stale `expected.json` (canonical edited,
+   expected not regenerated), dataset drift (seed data changed,
+   canonical now inconsistent with expected), and README/canonical/expected
+   silently disagreeing. Decide per lesson:
+   - Will the canonical be **checked-in** (visible to learners — this
+     is the recommended default; cheating is fine, the workshop is
+     hands-on, not graded), or **hidden inside the test file** (only
+     if exposure would undermine a specific puzzle)?
+   For **read-pedagogy** lessons: confirm "the lesson source IS the
+   canonical" — no separate `canonical.<ext>` file is needed and none
+   should be created.
+3. **Cross-lesson coherence.** Which patterns ripple through multiple
    lessons? Tool use, error handling, schema validation, auth shape —
    pick the load-bearing ones and confirm they're consistent.
-3. **"You might see this elsewhere" alternatives.** For each canonical
+4. **"You might see this elsewhere" alternatives.** For each canonical
    pattern, what's the alternative the learner might encounter in
    other docs/tutorials? Lessons should name the alternative and
    explain why the canonical choice is canonical here.
-4. **Edit affordances.** What "play with this" experiments does each
+5. **Edit affordances.** What "play with this" experiments does each
    lesson offer the learner? Workshops without edit affordances
    degrade into read-only docs.
-5. **HARD vs SOFT user gates.** Where does the walker REQUIRE the
+6. **HARD vs SOFT user gates.** Where does the walker REQUIRE the
    learner to run something / answer something before continuing
    (HARD), vs simply offer to move on (SOFT)? Auto-proceeding past
    a HARD gate is the bug pattern from mcp-workshop's pace prompt.
@@ -241,10 +259,17 @@ first; code follows.*
 
 ## 3. Pedagogical decisions
 
-| Lesson | Canonical pattern | "You might see…" alternative |
-|---|---|---|
-| L1 | <pattern> | <alternative + why canonical wins> |
-| … | | |
+| Lesson | Pedagogy | Canonical pattern | Canonical reference impl | "You might see…" alternative |
+|---|---|---|---|---|
+| L1 | write | <pattern> | `src/canonical.<ext>`, checked-in | <alternative + why canonical wins> |
+| L2 | read | <pattern> | lesson source IS canonical (n/a) | <alternative + why canonical wins> |
+| … | | | | |
+
+**Canonical reference policy:** every write-pedagogy lesson ships
+`src/canonical.<ext>` (the authoritative answer); CI asserts both the
+canonical AND the learner's filled-in target match `expected.json`
+against the same fixtures. Read-pedagogy lessons omit the file — the
+lesson source itself is canonical.
 
 **Cross-lesson patterns:** <which ripple through>
 
@@ -425,8 +450,19 @@ For lesson Ln:
      learner replaces. The shape compiles + the verify script runs but
      fails until the TODO is filled. Comments name the canonical pattern
      (Phase 3) and link to the "you might see…" alternative.
+   - **Write-pedagogy lessons — `src/canonical.<ext>` (MANDATORY).**
+     Alongside the learner's target file, write a canonical reference
+     implementation: the authoritative answer to the TODO. This is the
+     file `expected.json` was generated from, and CI runs it against
+     the same fixtures the learner's target is checked against. Without
+     it you can't detect stale `expected.json`, dataset drift, or
+     README/canonical/expected disagreement. Default: checked-in and
+     visible to learners (the workshop is hands-on, not graded). Hide
+     inside the test file only if exposure would undermine a specific
+     puzzle — decision recorded in Phase 3.
    - **Read-pedagogy lessons:** code is finished and runs end-to-end;
-     learner reads + executes + observes. No TODOs in `src/`.
+     learner reads + executes + observes. No TODOs in `src/`. **Do NOT
+     create `src/canonical.<ext>`** — the lesson source IS the canonical.
    - **Defensive parsing, fence stripping, retry:** copy the canonical
      shapes from `learning-with-court-workshop-template/workshop/lesson_01_template/src/extract.ts`
      when the lesson reads model output as JSON. Don't reinvent.
@@ -441,7 +477,16 @@ For lesson Ln:
 5. **`workshop/lesson_NN_<slug>/tests/`** — vitest tests for the target
    module. Tests run on every commit via lefthook + CI; they exercise
    the *finished* shape (so write-pedagogy tests pass once the learner
-   fills the TODO, and fail before).
+   fills the TODO, and fail before). **For write-pedagogy lessons,
+   tests MUST include a "canonical matches expected" assertion in
+   addition to the "target matches expected" assertion** — both
+   `src/canonical.<ext>` and the learner's `src/<target>.<ext>` are
+   exercised against the same fixtures and both must match
+   `expected.json`. See the documented pattern in
+   `workshop/LESSON_TEMPLATE.md` (template repo). The canonical
+   assertion is what catches stale expected fixtures and dataset
+   drift — without it the test suite can pass while the workshop is
+   silently broken.
 
 6. **`workshop/lesson_NN_<slug>/README.md`** — learner-facing prose,
    H1 matches `lesson.yaml.title`. Sections per `WORKSHOP_SPEC.md`:
@@ -490,7 +535,7 @@ For lesson Ln:
 After drafting Ln, stop and say:
 
 > "Lesson NN drafted. Files written:
-> - `workshop/lesson_NN_<slug>/{lesson.yaml, package.json, src/, tests/, README.md}`
+> - `workshop/lesson_NN_<slug>/{lesson.yaml, package.json, src/, src/canonical.<ext> (write-pedagogy only), tests/, README.md}`
 > - `.claude/skills/lesson-NN.md`
 > - `workshop.yaml` phase entry updated
 >
@@ -520,10 +565,19 @@ pnpm lint-manifest             # cross-checks workshop.yaml against fs
 pnpm sync-workshop-yaml --check # exits non-zero if manifest drifted from fs
 pnpm typecheck                 # all workspace packages
 pnpm setup-shared              # no-op unless this workshop has seed data
+pnpm test                      # runs vitest across lessons
 ```
 
 If `sync-workshop-yaml --check` fails, run `pnpm sync-workshop-yaml`
 (dry-run) to inspect the diff, then `--write` to apply.
+
+**Canonical assertions are part of `pnpm test`.** For every
+write-pedagogy lesson, `pnpm test` runs both the `canonical matches
+expected` and the `target matches expected` assertions against the
+same fixtures. If `expected.json` is stale, seed data has drifted, or
+the canonical and the target have diverged, this gate fails. Do not
+hand off until `pnpm test` is green — a green typecheck with a red
+canonical assertion means the workshop is silently broken.
 
 Surface failures to the author and fix them before the hand-off
 message.
