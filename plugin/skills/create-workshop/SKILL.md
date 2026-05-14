@@ -362,6 +362,48 @@ the base repo is the coordination root and every workshop lives under it.
 
 The variable `<local-dir>` below stands for `learning-with-court-<id>`.
 
+**Repos stay private (binding).** Every workshop repo under the
+`learning-with-court` GitHub org is **and remains private — there is
+no "flip to public when ready" step**. Do not offer it, do not include
+it in the hand-off message, do not document it as a future action.
+The author has standing instruction on this; treat it as a hard rule.
+
+How the publish/install pipeline actually works (so the agent never
+suggests `gh repo edit --visibility public` as a "fix"):
+
+1. **The shared GitHub App holds the credentials.** A GitHub App named
+   `learning-with-court` is installed on the org with read access to
+   every workshop repo. Its private key + installation ID live in AWS
+   Secrets Manager as `LwcSharedGitHubApp-Dev` and `LwcSharedGitHubApp-Prod`.
+2. **Per-workshop Lambdas read that secret.** Each registered workshop
+   gets a `LwcWorkshop-<id>-<Env>` Lambda (provisioned by CDK from the
+   platform repo's `workshops.json`). The Lambda's env wiring includes
+   the shared App secret. The Lambda is reachable as
+   `<id>.workshop.institute` (prod) or `<id>-dev.workshop.institute` (dev).
+3. **`lwc setup <id>` calls the Lambda** to mint a short-lived GitHub
+   App installation token, runs `git clone` against the private repo
+   using that token, and immediately strips the token off the local
+   `origin` remote. The learner's clone has an un-credentialed HTTPS
+   origin from that point onward.
+4. **Refreshes work the same way.** Inside Claude Code the learner runs
+   `/refresh-workshop`; from the shell, `lwc update <id>`. Either path
+   mints a fresh token, runs the pull, strips the token. **Plain
+   `git pull` would prompt for credentials and stall** — that's the
+   design, not a bug.
+5. **GitHub App authorization is the one manual gate.** When a brand-new
+   workshop repo is created, the org admin must explicitly add it to
+   the `learning-with-court` App's "Repository access" list. The
+   hand-off message at the end of this skill covers that step.
+
+Authors do not need to grant individual learner access to the repo;
+the shared App handles it. Authors do not need to flip the repo
+public to make `lwc setup` work; it never has worked that way.
+
+If the author asks "should we make the repo public?", the answer is
+**no**, and the explanation is the five-step pipeline above. If they
+push back, route them to the existing precedent: `mcp-workshop` and
+`evals-workshop` are both private and have always been.
+
 1. **Fork the template.** After the author confirms `<id>`, run from
    `learning-with-court-base/`:
    ```bash
@@ -370,7 +412,11 @@ The variable `<local-dir>` below stands for `learning-with-court-<id>`.
      --private
    git clone git@github.com:learning-with-court/<id>.git learning-with-court-<id>
    ```
-   Default to `--private`; the author flips to public when ready.
+   **The repo stays `--private` forever.** Do NOT offer to flip it
+   public — not at scaffold time, not after the workshop ships, not
+   ever. See **"Repos stay private (binding)"** below for why and how
+   install works without public access.
+
    Two-step (create-then-clone, no `--clone` flag) so the local
    directory name carries the `learning-with-court-` prefix while the
    remote stays as `<id>`. Clone lands at
