@@ -136,7 +136,7 @@ one-line confirmation** — no explanation, no setup ladder.
 
 | Helper | Command | Satisfied when |
 |---|---|---|
-| Anthropic API key | `lwc env get ANTHROPIC_API_KEY` | exit 0 + non-empty stdout |
+| Anthropic API key | `grep -q '^ANTHROPIC_API_KEY=' .env && echo "present" \|\| echo "missing"` | stdout is `present` |
 | Claude Code | `which claude` | exit 0 |
 | Workshop directory | `test -f workshop.yaml` | exit 0 (run from install path) |
 | Clerk auth | `lwc auth whoami` | exit 0 |
