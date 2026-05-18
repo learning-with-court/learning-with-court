@@ -86,6 +86,21 @@ Questions to ask (in order, one per turn):
    etc.)? Tools (Node, pnpm, Docker, etc.)?
 4. **Cost shape.** Which lessons hit a paid API? Rough $ per learner
    walking the whole workshop, at default cap.
+5. **Series membership.** "Is this workshop part of a multi-workshop
+   series that learners should walk in order?" If yes, capture:
+   - `series.id` — kebab-case identifier shared by all workshops in
+     the series (e.g. `claude-certified-architect`). Confirm with the
+     author before settling on it — it's hard to rename later.
+   - `series.title` — human-readable series name (e.g. "Claude
+     Certified Architect"). Same value across all members.
+   - `series.order` — 1-indexed position of this workshop within the
+     series. Ask for the intended order and confirm no sibling has
+     already claimed that position.
+   Remind the author that the same `series` block must be added to
+   both `workshop.yaml` **and** the `workshops.json` registry entry
+   for the platform to render the series grouping and prev/next links.
+   If the answer is "no" or "not sure yet", capture `series: null`
+   in the plan and move on — it can be added later.
 
 **Do not ask about duration / hours / "how long will this take."**
 Time estimates from this skill are unreliable and bake a false promise
@@ -246,6 +261,7 @@ first; code follows.*
 - **Prereqs:** <list>
 - **Duration:** <hours>
 - **Cost shape:** ~$<total> per full walkthrough at default cap
+- **Series:** <series id + title + order, or "standalone">
 
 ## 2. Lessons
 
