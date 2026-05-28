@@ -125,6 +125,42 @@ That's it. **No `gh` CLI, no GitHub account, no API keys.** First-run
 sign-in happens via browser when the CLI runs (or during the install
 script if the user opted into the auth step).
 
+### 2a. Detection-based fast-forward
+
+After the gating prereqs pass, silently probe the user's environment
+for components that are already installed. When all requirements for a
+step are already satisfied, **skip that step and surface a single
+one-line confirmation** — no explanation, no setup ladder.
+
+**Canonical detection helpers** (run each as its own Bash call):
+
+| Helper | Command | Satisfied when |
+|---|---|---|
+| Anthropic API key | `grep -q '^ANTHROPIC_API_KEY=' .env && echo "present" \|\| echo "missing"` | stdout is `present` |
+| Claude Code | `which claude` | exit 0 |
+| Workshop directory | `test -f workshop.yaml` | exit 0 (run from install path) |
+| Clerk auth | `lwc auth whoami` | exit 0 |
+
+On Windows, replace `which claude` with `Get-Command claude` (consistent
+with existing cross-platform notes in this skill).
+
+**One-line confirmation pattern.** When detection finds a satisfied
+requirement, render exactly one line and move on:
+
+> ✓ Claude Code installed (`claude` 1.x.x). Moving on.
+> ✓ `ANTHROPIC_API_KEY` is set. Moving on.
+> ✓ Workshop directory exists at `<path>`. Moving on.
+
+**Hard constraints:**
+
+- Detection MUST NOT auto-run lesson `verify` on the learner's behalf.
+  Pacing stays learner-driven; detection only collapses already-handled
+  setup steps.
+- Detection MUST NOT use time-based heuristics to gate progress.
+- Detection only *reads* state — it does not auto-install missing
+  components. If a check fails, guide the learner to install/configure
+  the missing piece normally.
+
 ### 2b. Pace signals (informational, no blocking)
 
 Probe the user's environment to infer a default workshop pace. The
