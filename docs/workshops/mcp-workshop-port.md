@@ -121,7 +121,7 @@ These are tiny — each maps a regex on user-prompt-submit to a tool call.
 
 1. **Lesson 1 needs to be installable in 2 minutes.** If onboarding takes longer than git-clone-and-pnpm-install, the hosted version is a regression. Watch this; iterate the install flow.
 
-2. **Phase C's recursive case is fragile.** The learner deploying their own auth-proxy Lambda while authenticated against ours could go wrong if the user accidentally points `.mcp.json` at their own incomplete deployment. Walker prose has to make the distinction clear ("you're authenticated against `learning-with-court/mcp-workshop`; you're deploying your own at `<their-stack>`; both can coexist in `.mcp.json`").
+2. **Phase C's recursive case is fragile.** The learner deploying their own auth-proxy Lambda while authenticated against ours could go wrong if the user accidentally points `.mcp.json` at their own incomplete deployment. Walker prose has to make the distinction clear ("you're authenticated against `learning-with-court/workshop-mcp`; you're deploying your own at `<their-stack>`; both can coexist in `.mcp.json`").
 
 3. **Verify-output capture is the trickiest UX problem.** Three options, in order of preference:
    - **Companion plugin captures.** PostToolUse hook on Bash; if the bash command was a `pnpm verify`, capture stdout, send to `submit_verify_output`. Cleanest UX.

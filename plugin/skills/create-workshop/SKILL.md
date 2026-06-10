@@ -43,7 +43,7 @@ measured against:
 - **Skills are skills, not slash-commands.** Every walker, utility,
   and orchestrator is model-invocable with third-person descriptions
   and 4–8 trigger phrases. See
-  `learning-with-court-mcp-workshop/docs/WORKSHOP_SPEC.md` §0.
+  `workshop-mcp/docs/WORKSHOP_SPEC.md` §0.
 - **Lessons are learner-driven.** The learner runs verify, writes
   code, edits files. The agent inspects state silently and guides.
   Never auto-run verify on the learner's behalf.
@@ -243,7 +243,7 @@ Questions:
 ## Render the plan
 
 Once all six phases are done, write `WORKSHOP_PLAN.md` to
-`learning-with-court-base/` (the coordination repo's root — this skill
+`learning-with-court-workspace/` (the coordination repo's root — this skill
 is invoked from there). The scaffolding step will move it into the new
 workshop's `docs/` dir. Use this template, populated from the answers:
 
@@ -326,7 +326,7 @@ this." Agent never shell-checks for API key.
 *Plan created via the `create-workshop` plugin skill.*
 ```
 
-Save it to `learning-with-court-base/WORKSHOP_PLAN.md` for now (it'll
+Save it to `learning-with-court-workspace/WORKSHOP_PLAN.md` for now (it'll
 move into `learning-with-court-<id>/docs/WORKSHOP_PLAN.md` once
 scaffolding runs).
 
@@ -347,7 +347,7 @@ After the author approves, run the template-fork flow.
 
 **Template (binding).** The only template to fork from is
 `learning-with-court/workshop-template`. Do not invent variants
-(`learning-with-court-workshop-template`, `workshop-template-v2`,
+(`workshop-template`, `workshop-template-v2`,
 etc.) — they don't exist. If `gh repo view learning-with-court/workshop-template`
 fails, stop and surface the error; do not substitute.
 
@@ -360,18 +360,18 @@ this is the one human-in-the-loop step in scaffolding. Do NOT default
 to a generated name.
 
 **Clone location (binding).** The new workshop is cloned **inside the
-`learning-with-court-base/` coordination repo**, as a sibling of the
+`learning-with-court-workspace/` coordination repo**, as a sibling of the
 other workshops:
 ```
-learning-with-court-base/
-├── learning-with-court-mcp-workshop/
-├── learning-with-court-evals-workshop/
-├── learning-with-court-workshop-template/
+learning-with-court-workspace/
+├── workshop-mcp/
+├── workshop-evals/
+├── workshop-template/
 └── learning-with-court-<id>/    ← new clone goes here
 ```
 Local directory name has the `learning-with-court-` prefix (matches the
 other workshops' local dir names); the **remote** name on GitHub does
-not (it's just `<id>`). `learning-with-court-base/.gitignore` already
+not (it's just `<id>`). `learning-with-court-workspace/.gitignore` already
 ignores `learning-with-court-*/` so the new clone doesn't pollute the
 base repo. Do NOT clone into the author's cwd, `~/`, or anywhere else —
 the base repo is the coordination root and every workshop lives under it.
@@ -421,7 +421,7 @@ push back, route them to the existing precedent: `mcp-workshop` and
 `evals-workshop` are both private and have always been.
 
 1. **Fork the template.** After the author confirms `<id>`, run from
-   `learning-with-court-base/`:
+   `learning-with-court-workspace/`:
    ```bash
    gh repo create learning-with-court/<id> \
      --template learning-with-court/workshop-template \
@@ -436,7 +436,7 @@ push back, route them to the existing precedent: `mcp-workshop` and
    Two-step (create-then-clone, no `--clone` flag) so the local
    directory name carries the `learning-with-court-` prefix while the
    remote stays as `<id>`. Clone lands at
-   `learning-with-court-base/learning-with-court-<id>/`.
+   `learning-with-court-workspace/learning-with-court-<id>/`.
 
 2. **Move `WORKSHOP_PLAN.md` into the new repo:**
    ```bash
@@ -526,7 +526,7 @@ For lesson Ln:
      learner reads + executes + observes. No TODOs in `src/`. **Do NOT
      create `src/canonical.<ext>`** — the lesson source IS the canonical.
    - **Defensive parsing, fence stripping, retry:** copy the canonical
-     shapes from `learning-with-court-workshop-template/workshop/lesson_01_template/src/extract.ts`
+     shapes from `workshop-template/workshop/lesson_01_template/src/extract.ts`
      when the lesson reads model output as JSON. Don't reinvent.
 
 4. **`workshop/lesson_NN_<slug>/src/verify.ts`** — the verify script
@@ -657,7 +657,7 @@ commands pass, deliver this message verbatim:
 >    → Apps → `learning-with-court` → Configure → Repository access
 >    → add `<id>`.
 > 2. Register in the platform: open a PR against
->    `learning-with-court-platform/workshops.json` adding
+>    `platform/workshops.json` adding
 >    `{ "id": "<id>", "repo": "learning-with-court/<id>", "ref":
 >    "main", "envs": ["dev"] }`. CI deploys the dev Lambda.
 > 3. Test as a learner: `LWC_API_URL=https://mcp-dev.workshop.institute lwc setup <id>`.
