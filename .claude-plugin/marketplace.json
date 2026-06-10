@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "Learning-with-Court workshops. Interactive technical and creative workshops that run inside Claude Code and Claude Cowork.",
-    "version": "0.7.1"
+    "version": "0.7.2"
   },
   "plugins": [
     {
       "name": "lwc",
       "source": "./plugins/lwc-workshops",
-      "description": "Run Learning-with-Court workshops in Claude. Ships the setup-workshop, workshop-orchestrator, and lesson-runner skills \u2014 install a workshop, start it, and walk every lesson. MCP transport is the Custom Connector's job (Cowork) or the @learning-with-court/cli (Claude Code).",
-      "version": "0.6.1",
+      "description": "Run Learning-with-Court workshops in Claude \u2014 pick a workshop, start it, and get walked through every lesson. Works in Claude Code and Claude Cowork; sign in with your workshop.institute account and the plugin handles the rest.",
+      "version": "0.6.2",
       "author": {
         "name": "Court Schuett"
       },
