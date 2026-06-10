@@ -5,5 +5,5 @@
 pre-commit:
   commands:
     validate-plugin:
-      glob: "{.claude-plugin/**,plugin/**,scripts/validate-plugin.mjs}"
+      glob: "{.claude-plugin/**,plugins/**,scripts/validate-plugin.mjs}"
       run: node scripts/validate-plugin.mjs
