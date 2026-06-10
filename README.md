@@ -8,8 +8,7 @@ Interactive technical and creative workshops that run inside Claude Code and Cla
 
 | Plugin | Surface | What it does |
 |---|---|---|
-| `lwc` | Cowork (claude.ai / Desktop) and Claude Code | The workshop runtime. Generic workshop-orchestrator + lesson-runner skills that drive any LWC workshop. Workshop content (lesson prose, verify scripts) is served at runtime from `workshop.institute`. |
-| `learning-with-court` | Claude Code | The setup entry point. Provides `@setup-workshop`, which clones a workshop's project codebase via `@learning-with-court/cli` and hands you off to a fresh session inside it. |
+| `lwc` | Cowork (claude.ai / Desktop) and Claude Code | The whole workshop experience. `setup-workshop` (Claude Code: clones a workshop's project codebase via `@learning-with-court/cli` and hands you off to a fresh session inside it), plus the runtime `workshop-orchestrator` + `lesson-runner` skills that drive any LWC workshop. Workshop content (lesson prose, verify scripts) is served at runtime from `workshop.institute`. |
 
 New workshops appear automatically as they're added to your account — no plugin update needed.
 
@@ -30,7 +29,7 @@ Full step-by-step (with screenshots): <https://workshop.institute/add-to-claude>
    Any folder works — this becomes the parent for everything you install.
 1. Start Claude Code there:  claude
 2. Type:  /plugin marketplace add learning-with-court/learning-with-court
-3. Type:  /plugin install learning-with-court@learning-with-court
+3. Type:  /plugin install lwc@learning-with-court
 4. Type:  /reload-plugins
 5. Tell Claude:  set up the mcp workshop
 ```
@@ -50,7 +49,7 @@ That's it. **No `gh` CLI, no GitHub account, no pnpm install up front.** The CLI
 
 ## How MCP is wired
 
-The plugins ship **skills only**. The MCP transport is a separate piece, and the right answer depends on which surface you're using:
+The plugin ships **skills only**. The MCP transport is a separate piece, and the right answer depends on which surface you're using:
 
 - **Cowork** — add the **LWC Custom Connector** alongside the plugin. The connector signs in via OAuth and talks to `mcp.workshop.institute/mcp`. The plugin's skills then drive the workshop.
 - **Claude Code** — each cloned workshop project ships its own `.mcp.json`, which spawns the `@learning-with-court/cli` as the MCP transport. The `lwc` plugin's orchestrator/lesson-runner skills give you guided lesson walks on top.
@@ -88,14 +87,13 @@ Your authenticated identity keys your workshop progress on the server. Sign in o
 
 ## What's in this repo
 
-- [`plugins/lwc-workshops/`](./plugins/lwc-workshops) — the `lwc` plugin: workshop-orchestrator + lesson-runner skills.
-- [`plugins/learning-with-court/`](./plugins/learning-with-court) — the Claude Code entry plugin: `@setup-workshop`.
+- [`plugins/lwc-workshops/`](./plugins/lwc-workshops) — the `lwc` plugin: setup-workshop + workshop-orchestrator + lesson-runner skills.
 - [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) — marketplace metadata.
 - [`docs/`](./docs) — design docs ([VISION](./docs/VISION.md), [ARCHITECTURE](./docs/ARCHITECTURE.md), [REFERENCE_PROJECTS](./docs/REFERENCE_PROJECTS.md), [ROADMAP](./docs/ROADMAP.md)). Not required reading to start a workshop.
 
 ## How it works (one paragraph)
 
-A workshop is split in two: **content** (lessons, walker prose, rubrics) lives on a deployed MCP server we host; **code** (the codebase you edit) lives in a per-workshop *project* repo you clone once. The plugins in this repo handle the start-and-walk steps. In Claude Code the project ships with its own `.mcp.json` and `.claude/settings.json`, so once you `cd` into it and run `claude`, the workshop greets you and walks the lessons. Server-side state means your progress survives across machines and sessions.
+A workshop is split in two: **content** (lessons, walker prose, rubrics) lives on a deployed MCP server we host; **code** (the codebase you edit) lives in a per-workshop *project* repo you clone once. The plugin in this repo handles the install-start-and-walk steps. In Claude Code the project ships with its own `.mcp.json` and `.claude/settings.json`, so once you `cd` into it and run `claude`, the workshop greets you and walks the lessons. Server-side state means your progress survives across machines and sessions.
 
 ## Status
 

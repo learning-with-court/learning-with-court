@@ -1,9 +1,30 @@
 ---
 name: setup-workshop
-description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "I'd like to learn <topic>", "I want to learn how to <build X>", "teach me <topic>", "help me get started", "set up a workshop", "start a workshop", "set up the <name> workshop", "begin the lwc workshop". The list of available workshops is fetched live from `lwc catalog`; match the user's request against returned workshop ids/titles/tags. Drives the clone of the workshop's project codebase via the @learning-with-court/cli into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
+description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "I'd like to learn <topic>", "I want to learn how to <build X>", "teach me <topic>", "help me get started", "set up a workshop", "start a workshop", "set up the <name> workshop", "begin the lwc workshop". In Claude Code this drives the clone of the workshop's project codebase via the @learning-with-court/cli into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there; the list of available workshops is fetched live from `lwc catalog`. In Claude Cowork (claude.ai / Desktop) there is no host CLI — follow the skill's surface check, which routes the learner to the lwc connector + workshop-orchestrator flow instead. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
 ---
 
 You're setting up a learning-with-court workshop for the user.
+
+## Surface check — do this FIRST
+
+Everything below this section is for **Claude Code** (a terminal session on
+the user's machine). If you are running in **Claude Cowork** (claude.ai or
+the Claude desktop app — a sandboxed environment with no access to the
+user's terminal, home directory, or host-installed CLIs), STOP here and run
+none of the CLI steps. Workshops in Cowork aren't cloned; they run through
+the **lwc connector** and the **workshop-orchestrator** skill:
+
+1. If lwc workshop tools are available in this session, hand off to the
+   workshop-orchestrator skill and let it drive.
+2. If no lwc tools are available, the connector isn't set up yet. Point the
+   user at the one-page guide — <https://workshop.institute/add-to-claude>
+   (the claude.ai tab): Customize → Connectors → lwc → Connect, then come
+   back and say "let's start a workshop." Never instruct a Cowork user to
+   run shell commands.
+
+If you're unsure which surface you're on: Claude Code sessions have a fixed
+working directory on the user's machine and a Bash tool that runs host
+commands; Cowork sessions don't.
 
 ## Background
 
