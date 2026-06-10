@@ -188,6 +188,15 @@ Probe the user's environment to infer a default workshop pace. The
 result becomes the `pace:` field in `.claude/lwc-workshop.local.md`,
 read by the workshop's SessionStart hook to set tone for every lesson.
 
+**Announce the probes before running them**, in one line, so the user
+knows these are read-only tool checks — not authentication. Watching
+`gh auth status` scroll by reads as "it's using my GitHub credentials";
+it isn't, and workshop access never touches their GitHub account. Say
+something like:
+
+> Taking a quick read-only look at which dev tools you have — this only
+> tunes the workshop's pace; none of it is used for workshop access.
+
 **Run each probe as its OWN Bash call, not as one combined command.**
 Claude Code's auto-mode classifier blocks multi-tool environment-
 introspection batches (it reads them as broad system reads). One probe

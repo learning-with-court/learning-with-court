@@ -1,6 +1,6 @@
 {
   "name": "lwc",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Run Learning-with-Court workshops in Claude \u2014 pick a workshop, start it, and get walked through every lesson. Works in Claude Code and Claude Cowork; sign in with your workshop.institute account and the plugin handles the rest.",
   "author": {
     "name": "Court Schuett"
