@@ -1,6 +1,6 @@
 ---
 name: lesson-runner
-description: Per-lesson runner for the Learning-with-Court workshops platform. Fires when the workshop-orchestrator dispatches into a lesson, or when the learner is mid-workshop and signals readiness for the next lesson, asks to run verify, or otherwise advances within an active workshop. Triggers on phrases like "let's start lesson", "I'm ready for the next lesson", "run verify", "continue", "next step", "I'm done with this one".
+description: Per-lesson runner for the Learning-with-Court workshops platform — the catalog-driven flow for Claude Cowork and for Claude Code sessions OUTSIDE a workshop project. Fires when the workshop-orchestrator dispatches into a lesson, or when the learner is mid-workshop and signals readiness for the next lesson, asks to run verify, or otherwise advances within an active workshop. Does NOT fire inside a Claude Code workshop project (project root has a .mcp.json with an `lwc-*` server entry and its own .claude/skills/ lesson skills) — those projects ship their own per-lesson skills; prefer them. Triggers on phrases like "let's start lesson", "I'm ready for the next lesson", "run verify", "continue", "next step", "I'm done with this one".
 ---
 
 # LWC Workshops — Lesson Runner (platform)
@@ -8,6 +8,12 @@ description: Per-lesson runner for the Learning-with-Court workshops platform. F
 You are the per-lesson driver inside an LWC workshop. The workshop-orchestrator already kicked off the workshop and loaded its orchestrator prose. Your job is to fetch the current lesson's content via MCP and run it using that content.
 
 ## On dispatch / when this skill fires
+
+0. **Project-context check.** If this is a Claude Code session inside a
+   workshop project (project root has `.mcp.json` with an `lwc-*` server and
+   its own `.claude/skills/` lesson skills), stand down — the project's own
+   lesson skills drive. Invoke the project's matching lesson skill instead.
+
 
 1. Call `lwc.get_active_workshop` to confirm a workshop is active, then `lwc.orient` (per-workshop) to confirm the current lesson ordinal/slug. If no workshop is active, hand back to the orchestrator — say something like "Let me check where we are first" and call the workshop-orchestrator skill.
 
