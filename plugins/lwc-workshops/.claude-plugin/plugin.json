@@ -1,7 +1,7 @@
 {
   "name": "lwc",
-  "version": "0.5.4",
-  "description": "Learning-with-Court workshops platform. Ships the workshop-orchestrator and lesson-runner skills that drive any LWC workshop. Pair with the LWC Custom Connector (Cowork) or the @learning-with-court/cli (Claude Code) for MCP access.",
+  "version": "0.6.0",
+  "description": "Learning-with-Court workshops. Ships the setup-workshop, workshop-orchestrator, and lesson-runner skills — install a workshop, start it, and walk every lesson. MCP transport is the LWC Custom Connector (Cowork) or the @learning-with-court/cli (Claude Code).",
   "author": {
     "name": "Court Schuett"
   },
@@ -11,5 +11,28 @@
     "workshops",
     "platform",
     "education"
-  ]
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(node --version)",
+      "Bash(git --version)",
+      "Bash(command -v lwc)",
+      "Bash(lwc:*)",
+      "Bash(uname:*)",
+      "Bash(gh --version)",
+      "Bash(gh auth status)",
+      "Bash(pnpm --version)",
+      "Bash(git config --global user.name)",
+      "Bash(aws configure list-profiles)",
+      "Bash(test -s ~/.zshrc || test -s ~/.bashrc)",
+      "Bash(ls:*)",
+      "Bash(test -d:*)",
+      "Bash(test -e:*)",
+      "Bash(test -s:*)",
+      "Bash(realpath:*)",
+      "Bash(mkdir -p:*)",
+      "Bash(pwd)",
+      "Bash(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    ]
+  }
 }
