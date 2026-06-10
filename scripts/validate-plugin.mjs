@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Lightweight validator for the learning-with-court marketplace.
 // - Confirms .claude-plugin/marketplace.json parses and has the required shape.
-// - If a plugin/ subdirectory exists, walks any plugin/skills/*.md files and
-//   confirms each has YAML frontmatter with `name` and `description`.
+// - Walks plugins/*/: validates each .claude-plugin/plugin.json and every
+//   skills/*/SKILL.md has YAML frontmatter with `name` and `description`.
 // Exits non-zero on first failure; logs are GH-Actions-friendly.
 
 import { readFileSync, statSync, readdirSync, existsSync } from "node:fs";
@@ -51,31 +51,59 @@ if (!existsSync(marketplacePath)) {
   }
 }
 
-// ---- 2. skill frontmatter (best effort) ----
-const skillsDir = join(ROOT, "plugin", "skills");
-if (existsSync(skillsDir) && statSync(skillsDir).isDirectory()) {
-  for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
-    if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
-    const skillPath = join(skillsDir, entry.name);
-    const content = readFileSync(skillPath, "utf8");
-    const fm = content.match(/^---\n([\s\S]*?)\n---/);
-    if (!fm) {
-      fail(skillPath, "missing YAML frontmatter");
-      continue;
+// ---- 2. per-plugin manifests + skill frontmatter ----
+const pluginsDir = join(ROOT, "plugins");
+if (existsSync(pluginsDir) && statSync(pluginsDir).isDirectory()) {
+  for (const pluginEntry of readdirSync(pluginsDir, { withFileTypes: true })) {
+    if (!pluginEntry.isDirectory()) continue;
+    const pluginRoot = join(pluginsDir, pluginEntry.name);
+
+    // plugin.json must exist and parse
+    const pluginJsonPath = join(pluginRoot, ".claude-plugin", "plugin.json");
+    if (!existsSync(pluginJsonPath)) {
+      fail(pluginJsonPath, "plugin.json is missing");
+    } else {
+      try {
+        const p = JSON.parse(readFileSync(pluginJsonPath, "utf8"));
+        if (!p.name) fail(pluginJsonPath, "missing required field: name");
+        else if (!/^[a-z][a-z0-9-]*$/.test(p.name))
+          fail(pluginJsonPath, `plugin name "${p.name}" must match ^[a-z][a-z0-9-]*$`);
+        else ok(pluginJsonPath, `plugin "${p.name}" manifest ok`);
+      } catch (e) {
+        fail(pluginJsonPath, `invalid JSON: ${e.message}`);
+      }
     }
-    const block = fm[1];
-    if (!/^name:\s*\S/m.test(block))
-      fail(skillPath, "frontmatter missing `name`");
-    if (!/^description:\s*\S/m.test(block))
-      fail(skillPath, "frontmatter missing `description`");
-    if (
-      /^name:\s*\S/m.test(block) &&
-      /^description:\s*\S/m.test(block)
-    )
-      ok(skillPath, "frontmatter ok");
+
+    // each skill dir needs a SKILL.md with name + description frontmatter
+    const skillsDir = join(pluginRoot, "skills");
+    if (!existsSync(skillsDir) || !statSync(skillsDir).isDirectory()) continue;
+    for (const entry of readdirSync(skillsDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const skillPath = join(skillsDir, entry.name, "SKILL.md");
+      if (!existsSync(skillPath)) {
+        fail(skillPath, "SKILL.md is missing");
+        continue;
+      }
+      const content = readFileSync(skillPath, "utf8");
+      const fm = content.match(/^---\n([\s\S]*?)\n---/);
+      if (!fm) {
+        fail(skillPath, "missing YAML frontmatter");
+        continue;
+      }
+      const block = fm[1];
+      if (!/^name:\s*\S/m.test(block))
+        fail(skillPath, "frontmatter missing `name`");
+      if (!/^description:\s*\S/m.test(block))
+        fail(skillPath, "frontmatter missing `description`");
+      if (
+        /^name:\s*\S/m.test(block) &&
+        /^description:\s*\S/m.test(block)
+      )
+        ok(skillPath, "frontmatter ok");
+    }
   }
 } else {
-  console.log(`(no plugin/skills/ dir — skipping skill validation)`);
+  console.log(`(no plugins/ dir — skipping plugin validation)`);
 }
 
 if (errors.length > 0) {
