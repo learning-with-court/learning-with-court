@@ -4,12 +4,50 @@
     "name": "Learning With Court",
     "url": "https://github.com/learning-with-court"
   },
+  "metadata": {
+    "description": "Learning-with-Court workshops. Interactive technical and creative workshops that run inside Claude Code and Claude Cowork.",
+    "version": "0.6.0"
+  },
   "plugins": [
     {
+      "name": "lwc",
+      "source": "./plugins/lwc-workshops",
+      "description": "Run Learning-with-Court workshops in Claude. Ships the workshop-orchestrator + lesson-runner skills. MCP transport is the Custom Connector's job (Cowork) or the @learning-with-court/cli (Claude Code).",
+      "version": "0.5.4",
+      "author": {
+        "name": "Court Schuett"
+      },
+      "homepage": "https://workshop.institute",
+      "repository": "https://github.com/learning-with-court/learning-with-court",
+      "license": "MIT",
+      "keywords": [
+        "lwc",
+        "learning-with-court",
+        "workshops",
+        "education"
+      ],
+      "category": "education"
+    },
+    {
       "name": "learning-with-court",
-      "source": "./plugin",
-      "description": "Entry point for the learning-with-court catalog of hands-on technical workshops. After install, tell Claude Code 'set up the mcp workshop' and the plugin runs @learning-with-court/cli to sign you in (one-time browser flow), clone the workshop into ~/learning-with-court/<id>/, and hand you off to a fresh Claude Code session. Lessons are driven by the workshop's deployed MCP server, not by this plugin.",
-      "version": "0.4.1"
+      "source": "./plugins/learning-with-court",
+      "description": "Claude Code entry point for the learning-with-court catalog. After install, tell Claude Code 'set up the mcp workshop' and the plugin runs @learning-with-court/cli to sign you in (one-time browser flow), clone the workshop into ~/learning-with-court/<id>/, and hand you off to a fresh Claude Code session. Lessons are driven by the workshop's deployed MCP server, not by this plugin.",
+      "version": "0.5.0",
+      "author": {
+        "name": "Court Schuett",
+        "url": "https://github.com/schuettc"
+      },
+      "homepage": "https://workshop.institute",
+      "repository": "https://github.com/learning-with-court/learning-with-court",
+      "license": "MIT",
+      "keywords": [
+        "lwc",
+        "learning-with-court",
+        "workshops",
+        "claude-code",
+        "education"
+      ],
+      "category": "education"
     }
   ]
 }

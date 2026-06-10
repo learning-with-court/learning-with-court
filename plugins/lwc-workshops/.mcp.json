@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "lwc": {
+      "type": "http",
+      "url": "https://mcp.workshop.institute/mcp",
+      "oauth": {
+        "clientId": "OwQKvLdDebg2PZqs"
+      }
+    }
+  }
+}
