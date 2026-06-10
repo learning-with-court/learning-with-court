@@ -12,15 +12,15 @@ For each repo path below, run these three commands:
 - Dirty files: `git -C <path> status --short`
 - Commits ahead of origin: `git -C <path> log --oneline @{u}..HEAD 2>/dev/null | wc -l | tr -d ' '`
 
-Repo paths (relative to the workspace root at `/Users/courtschuett/GitHub/schuettc/learning-with-court-base`, or use absolute paths):
+Repo paths (relative to the workspace root at `/Users/courtschuett/GitHub/schuettc/learning-with-court-workspace`, or use absolute paths):
 - `learning-with-court`
-- `learning-with-court-platform`
+- `platform`
 - `learning-with-court-workshops`
-- `learning-with-court-mcp-workshop`
+- `workshop-mcp`
 
 ## Feature dashboard
 
-Read `docs/features/DASHBOARD.md` from the workspace root (`/Users/courtschuett/GitHub/schuettc/learning-with-court-base/docs/features/DASHBOARD.md`) and extract:
+Read `docs/features/DASHBOARD.md` from the workspace root (`/Users/courtschuett/GitHub/schuettc/learning-with-court-workspace/docs/features/DASHBOARD.md`) and extract:
 - Every item in **In Progress** (id, name, started date)
 - Every item in **Backlog** (id, name, priority)
 - Count of Completed items
@@ -43,9 +43,9 @@ Print this structure to the terminal:
 
 REPOS
   learning-with-court              <branch>  <clean | N dirty>  <N ahead | up-to-date>
-  learning-with-court-platform     <branch>  <clean | N dirty>  <N ahead | up-to-date>
+  platform     <branch>  <clean | N dirty>  <N ahead | up-to-date>
   learning-with-court-workshops    <branch>  <clean | N dirty>  <N ahead | up-to-date>
-  learning-with-court-mcp-workshop <branch>  <clean | N dirty>  <N ahead | up-to-date>
+  workshop-mcp <branch>  <clean | N dirty>  <N ahead | up-to-date>
 
 FEATURES
   In progress : <list of "id — name" or "none">

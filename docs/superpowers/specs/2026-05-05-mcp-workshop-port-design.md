@@ -45,10 +45,10 @@ The four existing repos and one new one:
 | Repo | Role | Touched in chunks |
 |---|---|---|
 | `learning-with-court` | Public-facing plugin (entry point) | 2 |
-| `learning-with-court-platform` | Engineering: CDK + server lib | 1, 2 |
+| `platform` | Engineering: CDK + server lib | 1, 2 |
 | `learning-with-court-workshops` | Workshop content (WorkshopDefinitions) | 4, 5, 6 |
 | `learning-with-court-sample-substrate` | Unchanged; serves as regression case | — |
-| `learning-with-court-mcp-workshop-substrate` *(new)* | mcp-workshop's progressive substrate | 3 |
+| `workshop-mcp-substrate` *(new)* | mcp-workshop's progressive substrate | 3 |
 
 The platform's runtime topology is unchanged: HTTP API v2 + Lambda + DynamoDB. The only platform-level change is in chunk 1 (auth replaces spike-user) and chunk 2 (session/context now carries inferred user level).
 
@@ -58,7 +58,7 @@ Each chunk corresponds to one feature in `feature-workflow`'s backlog. Effort es
 
 ### Chunk 1 — Clerk auth
 
-**Repo:** `learning-with-court-platform`
+**Repo:** `platform`
 **Effort:** 1-2 days
 
 Replace the spike's hardcoded `userId = "spike-user"` with authenticated identity extracted from a Clerk JWT. Port the bearer-validation pattern near-verbatim from `~/GitHub/schuettc/mixcraft-app/packages/mcp-server/src/auth/clerk-jwt.ts` (try JWT verify first; fall back to userinfo round-trip if verify fails for legitimate reasons).
@@ -72,7 +72,7 @@ Replace the spike's hardcoded `userId = "spike-user"` with authenticated identit
 
 ### Chunk 2 — Adaptive user-level guidance
 
-**Repos:** `learning-with-court` (plugin), `learning-with-court-platform`, `learning-with-court-mcp-workshop-substrate` (forward-reference; substrate doesn't exist yet but the hook structure is needed)
+**Repos:** `learning-with-court` (plugin), `platform`, `workshop-mcp-substrate` (forward-reference; substrate doesn't exist yet but the hook structure is needed)
 **Effort:** 3-5 days
 
 The `setup-workshop` skill probes the learner's environment during step 2 (prereq check) — but instead of just gating on missing tools, it builds an inferred user-level signal:
@@ -92,7 +92,7 @@ The inferred level is encoded into substrate config at clone time (e.g., `.claud
 
 ### Chunk 3 — mcp-workshop substrate
 
-**Repo:** `learning-with-court-mcp-workshop-substrate` *(new)*
+**Repo:** `workshop-mcp-substrate` *(new)*
 **Effort:** 3-5 days
 
 New sibling repo. Single pnpm package, progressive shape (matches `learning-with-court-sample-substrate`). All 13 lessons' starter code + per-lesson tests + `.claude/` config (SessionStart hook, PreToolUse edit-block hook).

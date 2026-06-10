@@ -18,7 +18,7 @@ Hosted-MCP workshops driven by Claude Code.
 5. Tell Claude:  set up the mcp workshop
 ```
 
-That's the whole guide. Claude takes it from there — checks your tools, runs `npx @learning-with-court/cli setup mcp-workshop --dir <your-folder>/mcp-workshop`, opens a browser for one-time sign-in, clones the workshop into `<your-folder>/mcp-workshop/` (or `~/learning-with-court/mcp-workshop/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
+That's the whole guide. Claude takes it from there — checks your tools, runs `npx @learning-with-court/cli setup mcp-workshop --dir <your-folder>/mcp-workshop`, opens a browser for one-time sign-in, clones the workshop into `<your-folder>/mcp-workshop/` (or under `~/learning-with-court/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
 
 The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — additional workshops only need step 5.
 
