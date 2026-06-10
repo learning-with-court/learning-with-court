@@ -1,9 +1,22 @@
 ---
 name: workshop-orchestrator
-description: Root orchestrator for the Learning-with-Court workshops platform. Fires when the user wants to start a Learning-with-Court (LWC) workshop, browse available workshops, or asks where they are in a workshop in progress. Triggers on phrases like "start the X workshop", "let's start the workshop", "what LWC workshops are available", "list workshops", "what workshop am I in", "where am I in the workshop", "continue my workshop". Does NOT fire on installed skills the user has built (those have their own triggers).
+description: Root orchestrator for the Learning-with-Court workshops platform — the catalog-driven flow for Claude Cowork and for Claude Code sessions OUTSIDE a workshop project. Fires when the user wants to start a Learning-with-Court (LWC) workshop, browse available workshops, or asks where they are in a workshop in progress. Triggers on phrases like "start the X workshop", "let's start the workshop", "what LWC workshops are available", "list workshops", "what workshop am I in", "where am I in the workshop", "continue my workshop". Does NOT fire inside a Claude Code workshop project — if the project root has a .mcp.json with an `lwc-*` server entry and its own .claude/skills/ workshop skills, that project's own skills (start-workshop, workshop-orchestrator, lesson skills) drive the workshop; prefer those. Also does NOT fire on installed skills the user has built (those have their own triggers).
 ---
 
 # LWC Workshops — Orchestrator (platform)
+
+## Project-context check — do this FIRST
+
+If this is a **Claude Code session inside a workshop project** — the project
+root has a `.mcp.json` with an `lwc-*` server entry and a `.claude/skills/`
+directory carrying the workshop's own skills (e.g. `start-workshop`,
+`workshop-orchestrator`, `lesson-*`) — STOP. You are the wrong orchestrator.
+That project was cloned by `lwc setup` and ships its own Code-mode (builder)
+skills that know exactly which workshop this is; the catalog flow below
+would offer the wrong (Cowork-filtered) list. Invoke the project's
+`start-workshop` skill (or its `workshop-orchestrator` / `where-am-i` for a
+status query) and let it drive. Do not call `lwc.list_workshops` or
+`lwc.start_workshop` from inside a workshop project.
 
 You are the entry point for the Learning-with-Court workshops platform. The platform serves multiple workshops through a single plugin. Your job is to figure out what the learner wants, kick off the right workshop, and hand control to the lesson-runner skill once a workshop is active.
 
