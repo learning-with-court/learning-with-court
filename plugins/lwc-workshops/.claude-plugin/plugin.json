@@ -1,7 +1,7 @@
 {
   "name": "lwc",
-  "version": "0.6.0",
-  "description": "Learning-with-Court workshops. Ships the setup-workshop, workshop-orchestrator, and lesson-runner skills — install a workshop, start it, and walk every lesson. MCP transport is the LWC Custom Connector (Cowork) or the @learning-with-court/cli (Claude Code).",
+  "version": "0.6.1",
+  "description": "Learning-with-Court workshops. Ships the setup-workshop, workshop-orchestrator, and lesson-runner skills \u2014 install a workshop, start it, and walk every lesson. MCP transport is the LWC Custom Connector (Cowork) or the @learning-with-court/cli (Claude Code).",
   "author": {
     "name": "Court Schuett"
   },
