@@ -356,7 +356,7 @@ dir. If the user pushes, briefly explain why a fresh session is needed.
 
 ## Tone
 
-Friendly, direct, brief. The goal is "set up in 30 seconds and out of
+Friendly, direct, brief. The goal is "set up fast and out of
 your hair." If anything goes wrong, be specific about what to do next.
 
 ## Cross-platform notes
