@@ -54,24 +54,46 @@ what's available in the user's environment:
 lwc catalog
 ```
 
-Each entry includes a `Trigger:` phrase showing the install phrasing the
-user might say. Match the user's request to one of the returned `id`s:
+**`lwc catalog` already groups its output — present it the way the CLI
+grouped it; don't re-sort or flatten.** It renders two kinds of entries:
 
-- **If the user named a workshop** (id or title fragment), confirm the
-  match by stating which one and what it teaches; ask only if their
-  phrasing is ambiguous.
+- A **series** prints as one block: a `<Series Title> (series)` header
+  followed by its member workshops numbered in order (`1. <id>`,
+  `2. <id>`, …) with each member's title, difficulty, and `Trigger:`
+  phrase indented under it. A series is one learning path taken in
+  order across its N workshops — treat it as a **single choice**, not N
+  peers.
+- A **standalone** workshop (a series-of-one) prints individually below
+  the series blocks: `<id>`, then its title/difficulty/`Trigger:`.
+
+So when you present the catalog to the user, mirror that grouping: show
+each series as ONE option (its title, that it's an N-workshop series
+taken in order, optionally a one-line tagline) and list standalone
+workshops individually. Never list a series' member workshops as
+separate peer choices and never reorder by difficulty.
+
+Each entry includes a `Trigger:` phrase showing the install phrasing the
+user might say. Match the user's request:
+
+- **If the user named a workshop or series** (id or title fragment),
+  confirm the match by stating which one and what it teaches; ask only
+  if their phrasing is ambiguous. For a series match, confirm the
+  series (not a single member).
 - **If the user's phrasing is generic** ("I want to learn about X",
-  "start a workshop", "let's begin"), list ALL available workshops with
-  one-line titles and ask which one they want. Do NOT auto-pick even if
-  one workshop is a strong tag/title match — generic phrasing means
-  intent isn't established.
-- **If only ONE workshop is in the catalog AND the user named it or
-  used a topic word that's unambiguous for that workshop**, default-pick
-  it but say the workshop title + one-line summary in your confirmation
-  so the user can correct.
-- **If multiple workshops match**, list candidates and ask.
-- **If the user named a workshop that's `(coming soon)`**, tell them
-  politely it isn't ready yet — don't try to set it up.
+  "start a workshop", "let's begin"), list the available options as the
+  CLI grouped them — each series as one entry, each standalone
+  individually, with one-line titles — and ask which one they want. Do
+  NOT auto-pick even if one is a strong tag/title match — generic
+  phrasing means intent isn't established.
+- **If only ONE option is in the catalog AND the user named it or used
+  a topic word that's unambiguous for it**, default-pick it but say its
+  title + one-line summary in your confirmation so the user can correct.
+- **If multiple options match**, list candidates and ask.
+- **If the user picked a series**, see the series-setup note in Step 3:
+  you set up its FIRST (order-1) member; the orchestrator carries the
+  learner through the rest in order.
+- **If the user named a workshop or member that's `(coming soon)`**,
+  tell them politely it isn't ready yet — don't try to set it up.
 
 ## Steps
 
@@ -99,8 +121,9 @@ MUST avoid:
    because the words "MCP server" are present.
 2. **User says something generic** ("I'd like to start a workshop",
    "what workshops are there?", "let's begin"). Generic phrasing
-   means intent isn't established. Run `lwc catalog`, list every
-   workshop with one-line titles, ask.
+   means intent isn't established. Run `lwc catalog`, list the
+   options as the CLI grouped them — each series as one entry, each
+   standalone individually, with one-line titles — and ask.
 
 If you've run `lwc catalog` and the catalog has exactly one workshop
 in `status: available` AND the user named a topic that's unambiguous
@@ -247,6 +270,14 @@ Wait for the user's response. Accept any of:
 Persist whatever was chosen, even if it differs from the inference.
 
 ### 3. Decide where to install, then run setup
+
+**Series → first workshop.** `lwc setup` takes a *workshop* id, not a
+series id. If the user picked a series, the id you install is its
+**order-1 member** — the workshop numbered `1.` in that series' block in
+`lwc catalog`. Setup proceeds with that single id; tell the learner in
+one line that the series runs in order across its N workshops and the
+orchestrator will carry them through the rest. For a standalone, use its
+id directly as before.
 
 Resolve the install destination:
 
