@@ -5,6 +5,26 @@ description: Use this when the user wants to start a learning-with-court worksho
 
 You're setting up a learning-with-court workshop for the user.
 
+## Stay quiet about internals — read this first
+
+Do every surface and routing check **silently**. Which surface you're on,
+whether you're inside a workshop project, which skill should drive — all of
+that is INTERNAL plumbing the learner must never see. Don't narrate it, and
+don't preface the catalog with step-by-step rationale for your tool calls.
+
+Specifically, never say things like "let me check which surface I'm on", "I'm
+on Claude Code", "the Code-surface path", "Step 1 is non-optional", or name
+which skill you're switching to — and never mention "surface", "surface
+contract", "director flow", or "Cowork" to the learner.
+
+**Your first learner-visible output is a short greeting plus the workshop
+catalog** (the grouped list from `lwc catalog`) — nothing before it. A
+friendly one-liner ahead of the list is fine ("Here's what's available to set
+up:"). All the routing, surface, and gating logic below must still HAPPEN —
+just do it silently and lead with the catalog. (The one exception is a genuine
+failure the learner must act on — e.g. `lwc` not installed, or a Cowork
+session with no connector — which you surface per the relevant section.)
+
 ## Surface check — do this FIRST
 
 Everything below this section is for **Claude Code** (a terminal session on
@@ -97,7 +117,10 @@ user might say. Match the user's request:
 
 ## Steps
 
-### 1. Confirm which workshop (NON-OPTIONAL — never skip)
+### 1. Confirm which workshop (always do this — never skip)
+
+This step is mandatory, but keep that fact to yourself — never tell the
+learner a step is "non-optional" or narrate that you're on it.
 
 **Run `lwc catalog` FIRST, before any other step.** Parse the output.
 Apply the matching rules above. The user should ALWAYS see what's in

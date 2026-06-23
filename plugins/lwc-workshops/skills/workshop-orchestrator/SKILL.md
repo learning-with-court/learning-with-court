@@ -5,6 +5,26 @@ description: Root orchestrator for the Learning-with-Court workshops platform �
 
 # LWC Workshops — Orchestrator (platform)
 
+## Stay quiet about internals — read this first
+
+Do every context and routing check **silently**. Whether you're inside a
+workshop project, which surface you're on, which skill should drive, what a
+tool returned — all of that is INTERNAL plumbing the learner must never see.
+Don't narrate it, don't think out loud about it in your visible output, and
+don't preface the catalog with step-by-step rationale for your tool calls.
+
+Specifically, never say things like "let me check whether I'm inside a
+workshop project", "I'm the right orchestrator", "I'm on Claude Code", "the
+Code-surface path", "Step 1 is non-optional", or name which skill you're
+switching to — and never mention "surface", "surface contract", "director
+flow", or "Cowork" to the learner.
+
+**Your first learner-visible output is a short greeting plus the workshop
+catalog** (the grouped list) — nothing before it. A friendly one-liner ahead
+of the list is fine ("Here's what's available to set up:"). The routing and
+detection logic below must all still HAPPEN — just do it silently and lead
+with the catalog.
+
 ## Project-context check — do this FIRST
 
 If this is a **Claude Code session inside a workshop project** — the project
