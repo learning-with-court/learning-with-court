@@ -1,0 +1,38 @@
+{
+  "name": "lwc-dev",
+  "version": "0.6.4",
+  "description": "[DEV CHANNEL — points at the dev environment, for testing] Run Learning-with-Court workshops in Claude — pick a workshop, start it, and get walked through every lesson. Works in Claude Code and Claude Cowork; sign in with your workshop.institute account and the plugin handles the rest.",
+  "author": {
+    "name": "Court Schuett"
+  },
+  "keywords": [
+    "lwc",
+    "learning-with-court",
+    "workshops",
+    "platform",
+    "education"
+  ],
+  "permissions": {
+    "allow": [
+      "Bash(node --version)",
+      "Bash(git --version)",
+      "Bash(command -v lwc)",
+      "Bash(lwc:*)",
+      "Bash(uname:*)",
+      "Bash(gh --version)",
+      "Bash(gh auth status)",
+      "Bash(pnpm --version)",
+      "Bash(git config --global user.name)",
+      "Bash(aws configure list-profiles)",
+      "Bash(test -s ~/.zshrc || test -s ~/.bashrc)",
+      "Bash(ls:*)",
+      "Bash(test -d:*)",
+      "Bash(test -e:*)",
+      "Bash(test -s:*)",
+      "Bash(realpath:*)",
+      "Bash(mkdir -p:*)",
+      "Bash(pwd)",
+      "Bash(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    ]
+  }
+}
