@@ -5,6 +5,8 @@
   "description": "Tooling shell for the Claude Code plugin + marketplace. Holds lefthook + validation scripts; the plugins themselves ship from plugins/.",
   "scripts": {
     "validate": "node scripts/validate-plugin.mjs",
+    "gen:dev": "node scripts/gen-dev-plugin.mjs",
+    "check:dev": "node scripts/gen-dev-plugin.mjs --check",
     "postinstall": "lefthook install"
   },
   "devDependencies": {

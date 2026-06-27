@@ -22,3 +22,6 @@ jobs:
 
       - name: Validate marketplace and plugin manifests
         run: node scripts/validate-plugin.mjs
+
+      - name: Check lwc-dev plugin is in sync with lwc
+        run: node scripts/gen-dev-plugin.mjs --check

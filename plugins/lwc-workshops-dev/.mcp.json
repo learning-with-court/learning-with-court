@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "lwc": {
+      "type": "http",
+      "url": "https://mcp-dev.workshop.institute/mcp",
+      "oauth": {
+        "clientId": "f72LotUV2DW3dgd4",
+        "callbackPort": 8765
+      }
+    }
+  }
+}
