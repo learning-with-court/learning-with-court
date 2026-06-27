@@ -28,6 +28,25 @@
         "education"
       ],
       "category": "education"
+    },
+    {
+      "name": "lwc-dev",
+      "source": "./plugins/lwc-workshops-dev",
+      "description": "[DEV CHANNEL] The lwc plugin pointed at the dev environment (mcp-dev.workshop.institute) for testing. Use the `lwc` plugin for real workshops. Generated from `lwc` by scripts/gen-dev-plugin.mjs.",
+      "version": "0.6.4",
+      "author": {
+        "name": "Court Schuett"
+      },
+      "homepage": "https://workshop.institute",
+      "repository": "https://github.com/learning-with-court/learning-with-court",
+      "license": "MIT",
+      "keywords": [
+        "lwc",
+        "learning-with-court",
+        "dev",
+        "testing"
+      ],
+      "category": "education"
     }
   ]
 }
