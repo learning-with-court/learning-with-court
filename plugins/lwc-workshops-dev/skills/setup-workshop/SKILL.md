@@ -335,6 +335,7 @@ If the CLI errors:
 - **"already exists and is not empty":** offer to run `lwc remove <id>` first or pick a different `--dir`.
 - **Sign-in timeout / failed:** ask them to retry; the browser may have closed early.
 - **"PROVISION_FAILED":** the platform couldn't mint a token. Surface the message verbatim.
+- **"ENTITLEMENT_ACCESS_REQUIRED":** this workshop is gated — access opens through an **event**, and this is an intentional, expected boundary, **not a bug to route around**. Do NOT switch environments, grant access, log into another account, or otherwise try to defeat it. Tell the learner plainly: this workshop opens through an event (share the events link from the error message), and the free **`sql-intro`** workshop is open to try right now if they'd like a taste of how the system works. Then stop — don't retry.
 
 ### 4. Persist pace + signals
 

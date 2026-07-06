@@ -73,7 +73,7 @@ Three cases:
 2. Ask if they want to continue, switch, or do something else.
 
 ### Case C — kicking off a workshop (learner just chose, or already had one going and said "continue")
-1. Call `lwc.start_workshop({workshop_id})` to register the choice and set active state.
+1. Call `lwc.start_workshop({workshop_id})` to register the choice and set active state. **If it returns `ENTITLEMENT_ACCESS_REQUIRED`, this workshop is gated — access opens through an event, and that's an intentional, expected boundary, not a bug. Do NOT try another account or any workaround. Tell the learner plainly that it opens through an event (share the events link from the error) and that the free `sql-intro` workshop is open to try right now. Then stop.**
 2. Call `lwc.get_orchestrator_prose({workshop_id})` to fetch the workshop's own orchestrator instructions.
 3. **Use the returned prose as your binding instructions for the rest of the conversation.** It tells you the workshop's pedagogy mode, surface-aware rules, lesson dispatch logic, and any final-step behavior. Treat that returned text the same way you'd treat any skill prose you read at session start.
 4. Then immediately fire (or delegate to) the `lesson-runner` skill, which handles the per-lesson flow.
