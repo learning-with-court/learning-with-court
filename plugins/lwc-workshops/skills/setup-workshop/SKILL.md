@@ -327,8 +327,8 @@ recorded in `~/.lwc/workshops.json`). Then write
 
 ```markdown
 ---
-pace: balanced
-inferred_at: 2026-05-09T04:21:26Z
+pace: slow
+written_at: 2026-05-09T04:21:26Z
 signals:
   gh: true
   pnpm: true
@@ -345,8 +345,7 @@ Written by setup-workshop based on a probe of your environment. Edit
 workshop session for the change to take effect.
 ```
 
-Use the user's chosen pace from step 2c (which may be the inferred default
-or an override). Get the timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`.
+Write `pace: slow` (step 2c sets it for everyone). Get the timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`.
 
 ### 5. Hand off
 
