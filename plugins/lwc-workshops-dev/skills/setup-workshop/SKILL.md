@@ -184,9 +184,10 @@ Run silently; surface only failures:
   >
   > **Windows (PowerShell):**
   > ```
-  > irm https://get.workshop.institute/install.ps1 | iex
+  > & ([scriptblock]::Create((irm https://get.workshop.institute/install.ps1))) -Channel dev
   > ```
-  > (then run `lwc env switch dev` once installed)
+  > (then run `lwc env switch dev` once installed — channel picks the
+  > binary, env switch picks the backend; both steps are needed)
 
 That's it. **No `gh` CLI, no GitHub account, no API keys.** First-run
 sign-in happens via browser when the CLI runs (or during the install
