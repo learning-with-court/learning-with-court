@@ -4,7 +4,7 @@
 
 The Learning-with-Court workshops plugin. Ships three skills that take any LWC workshop from "I'd like to learn X" to the last lesson:
 
-- **setup-workshop** — (Claude Code) clones a workshop's project codebase via the `@learning-with-court/cli` and hands you off to a fresh session inside it. In Cowork it redirects to the connector + orchestrator flow instead — no CLI steps.
+- **setup-workshop** — (Claude Code) clones a workshop's project codebase via the `lwc` CLI and hands you off to a fresh session inside it. In Cowork it redirects to the connector + orchestrator flow instead — no CLI steps.
 - **workshop-orchestrator** — picks a workshop from your catalog and starts it
 - **lesson-runner** — walks you lesson-by-lesson through a started workshop
 
@@ -18,10 +18,10 @@ Full instructions: <https://workshop.institute/add-to-claude>
 
 ## Claude Code (CLI)
 
-In Code, the `@learning-with-court/cli` runs as a stdio MCP server out of each workshop's `.mcp.json`. Installing the plugin gives you the conversational entry point (`setup-workshop` — just say "set up the mcp workshop") plus the orchestrator/lesson-runner skills for guided lesson walks. Prefer the CLI directly? That works too:
+In Code, the `lwc` CLI runs as a stdio MCP server out of each workshop's `.mcp.json`. Installing the plugin gives you the conversational entry point (`setup-workshop` — just say "set up the mcp workshop") plus the orchestrator/lesson-runner skills for guided lesson walks. Prefer the CLI directly? That works too:
 
 ```
-npm i -g @learning-with-court/cli@latest
+curl -fsSL https://get.workshop.institute | sh -s -- --channel dev
 lwc auth login
 lwc setup <workshop-id>
 ```

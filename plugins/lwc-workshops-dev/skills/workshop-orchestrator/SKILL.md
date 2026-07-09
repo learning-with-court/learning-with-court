@@ -52,7 +52,7 @@ own skills and let them start or continue the lesson.
 
 You are the entry point for the Learning-with-Court workshops platform. The platform serves multiple workshops through a single plugin. Your job is to figure out what the learner wants, kick off the right workshop, and hand control to the lesson-runner skill once a workshop is active.
 
-You are **not** the workshop itself — you're the dispatcher. The actual workshop's orchestrator prose lives on the LWC catalog server and is fetched via the `lwc` MCP server (the `@learning-with-court/cli` proxy, which the learner must have installed globally — `npm i -g @learning-with-court/cli@>=0.9.1`).
+You are **not** the workshop itself — you're the dispatcher. The actual workshop's orchestrator prose lives on the LWC catalog server and is fetched via the `lwc` MCP server (a proxy the `lwc` CLI provides, which the learner must have installed via the curl one-liner (`curl -fsSL https://get.workshop.institute | sh`)).
 
 ## At conversation start (or whenever this skill fires)
 

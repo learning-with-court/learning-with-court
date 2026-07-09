@@ -1,6 +1,6 @@
 ---
 name: setup-workshop
-description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "I'd like to learn <topic>", "I want to learn how to <build X>", "teach me <topic>", "help me get started", "set up a workshop", "start a workshop", "set up the <name> workshop", "begin the lwc workshop". In Claude Code this drives the clone of the workshop's project codebase via the @learning-with-court/cli into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there; the list of available workshops is fetched live from `lwc catalog`. In Claude Cowork (claude.ai / Desktop) there is no host CLI — follow the skill's surface check, which routes the learner to the lwc connector + workshop-orchestrator flow instead. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
+description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "I'd like to learn <topic>", "I want to learn how to <build X>", "teach me <topic>", "help me get started", "set up a workshop", "start a workshop", "set up the <name> workshop", "begin the lwc workshop". In Claude Code this drives the clone of the workshop's project codebase via the `lwc` CLI into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there; the list of available workshops is fetched live from `lwc catalog`. In Claude Cowork (claude.ai / Desktop) there is no host CLI — follow the skill's surface check, which routes the learner to the lwc connector + workshop-orchestrator flow instead. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
 ---
 
 You're setting up a learning-with-court workshop for the user.
@@ -49,9 +49,10 @@ commands; Cowork sessions don't.
 ## Background
 
 learning-with-court hosts technical workshops as deployed MCP servers. The
-`@learning-with-court/cli` (npm) is the universal entry point — it does
-auth, clone, refresh, registry, and proxies MCP for in-workshop sessions.
-This skill is a thin wrapper that drives the CLI's `setup` subcommand.
+`lwc` (a standalone Go binary, installed via a curl one-liner — no
+Node/npm required) is the universal entry point — it does auth, clone,
+refresh, registry, and proxies MCP for in-workshop sessions. This skill
+is a thin wrapper that drives the CLI's `setup` subcommand.
 
 By convention, workshops install to `<parent>/<workshop-id>/`. The default
 parent is `~/learning-with-court/`, but if the user is in a sensible working
@@ -135,7 +136,7 @@ the catalog, you're skipping Step 1 — go back and run `lwc catalog`.
 This rule has two failure modes that get hit in practice and that you
 MUST avoid:
 
-1. **User says the install.sh example phrase verbatim** ("I'd like to
+1. **User says the install one-liner's example phrase verbatim** ("I'd like to
    learn how to build an MCP server"). That phrase is anchoring copy
    from the landing page — treat it like any other natural-language
    request. Run `lwc catalog`, see what's available, list candidates
@@ -162,17 +163,14 @@ double-check; the catalog's URL already reflects the same setting.
 
 Run silently; surface only failures:
 
-- `node --version` — must be v20+. If older, recommend nvm.
 - `git --version` — must be installed.
 - **`command -v lwc` — must succeed.** This is the gating check; pass
-  ONLY when the binary exists on PATH. `lwc --version` is supported
-  (CLI ≥ 0.3.1) and useful for displaying the version informationally,
-  but don't conflate the two — `command -v lwc` is the existence test.
-  The `lwc` binary (the `@learning-with-court/cli` npm package,
-  installed globally) is the entry point for all workshop operations.
-  If it's missing, do NOT try to fall back to `npx -y` — that path is
-  blocked by Claude Code's auto-mode classifier and produces a worse
-  experience for everyone. Surface this exact message and stop:
+  ONLY when the binary exists on PATH. `lwc --version` is supported and
+  useful for displaying the version informationally, but don't conflate
+  the two — `command -v lwc` is the existence test. The `lwc` binary (a
+  standalone Go binary, no Node/npm required) is the entry point for
+  all workshop operations. If it's missing, surface this exact message
+  and stop:
 
   > It looks like `lwc` is not installed. The learning-with-court CLI
   > needs to be installed once before the plugin can set up workshops.
@@ -180,12 +178,12 @@ Run silently; surface only failures:
   >
   > **macOS / Linux / WSL:**
   > ```
-  > curl -fsSL https://workshop.institute/install.sh | bash
+  > curl -fsSL https://get.workshop.institute | sh
   > ```
   >
   > **Windows (PowerShell):**
   > ```
-  > irm https://workshop.institute/install.ps1 | iex
+  > irm https://get.workshop.institute/install.ps1 | iex
   > ```
 
 That's it. **No `gh` CLI, no GitHub account, no API keys.** First-run
@@ -304,9 +302,8 @@ output matches what you told the user):
 lwc setup <workshop-id> --dir <resolved-dest>
 ```
 
-**Use the bare `lwc` binary, never `npx -y @learning-with-court/cli@latest`.**
-The npx path is blocked by Claude Code's auto-mode classifier; the bare
-binary path is what step 2's prereq check guarantees is on PATH.
+**Use the bare `lwc` binary.** It's the standalone binary installed by
+the curl one-liner in step 2 — no npm/npx path exists or is needed.
 
 The CLI auto-creates parent directories. If the user has expressed a
 different preference (e.g., they explicitly said `~/Projects/...`), honor
@@ -380,7 +377,8 @@ the same one the CLI printed and that's stored in
 
 If the user asks "what else can I do?":
 - `lwc list` — show installed workshops
-- `lwc update [<id>]` — pull updates
+- `lwc refresh [<id>]` — pull workshop content updates
+- `lwc update` — self-update the `lwc` CLI itself
 - `lwc remove <id> [--delete-files]` — uninstall
 - `lwc auth status` — confirm signed in
 
@@ -396,8 +394,8 @@ your hair." If anything goes wrong, be specific about what to do next.
 
 ## Cross-platform notes
 
-- The CLI (`@learning-with-court/cli`) is fully cross-platform — pure
-  Node, no shell quirks.
+- The CLI (`lwc`) is fully cross-platform — a standalone Go binary, no
+  Node/npm dependency, no shell quirks.
 - Only the `cd && claude` handoff differs per OS; the CLI itself
   doesn't care.
 
