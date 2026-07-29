@@ -8,7 +8,7 @@ Interactive technical and creative workshops that run inside Claude Code and Cla
 
 | Plugin | Surface | What it does |
 |---|---|---|
-| `lwc` | Cowork (claude.ai / Desktop) and Claude Code | The whole workshop experience. `setup-workshop` (Claude Code: clones a workshop's project codebase via `@learning-with-court/cli` and hands you off to a fresh session inside it), plus the runtime `workshop-orchestrator` + `lesson-runner` skills that drive any LWC workshop. Workshop content (lesson prose, verify scripts) is served at runtime from `workshop.institute`. |
+| `lwc` | Cowork (claude.ai / Desktop) and Claude Code | The whole workshop experience. `setup-workshop` (Claude Code: clones a workshop's project codebase via the `lwc` CLI and hands you off to a fresh session inside it), plus the runtime `workshop-orchestrator` + `lesson-runner` skills that drive any LWC workshop. Workshop content (lesson prose, verify scripts) is served at runtime from `workshop.institute`. |
 
 New workshops appear automatically as they're added to your account — no plugin update needed.
 
@@ -34,16 +34,24 @@ Full step-by-step (with screenshots): <https://workshop.institute/add-to-claude>
 5. Tell Claude:  set up the mcp workshop
 ```
 
-That's the whole guide. Claude takes it from there — checks your tools, runs `npx @learning-with-court/cli setup mcp-workshop --dir <your-folder>/mcp-workshop`, opens a browser for one-time sign-in, clones the workshop into `<your-folder>/mcp-workshop/` (or under `~/learning-with-court/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
+That's the whole guide. Claude takes it from there — checks your tools, runs `lwc setup mcp-workshop --dir <your-folder>/mcp-workshop`, opens a browser for one-time sign-in, clones the workshop into `<your-folder>/mcp-workshop/` (or under `~/learning-with-court/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
 
 The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — additional workshops only need step 5.
 
-Prefer the CLI directly? `npm i -g @learning-with-court/cli@latest`, then `lwc setup <workshop-id>` — the cloned project wires up the workshop's MCP server on its own.
+Prefer the CLI directly? Install it once:
+
+```
+curl -fsSL https://get.workshop.institute | sh
+```
+
+(Windows PowerShell: `irm https://get.workshop.institute/install.ps1 | iex`)
+
+Then `lwc setup <workshop-id>` — the cloned project wires up the workshop's MCP server on its own. `lwc update` self-updates the CLI; `lwc refresh <id>` pulls the latest workshop content into an existing clone.
 
 ## Requirements
 
 - **Claude Code** (<https://claude.com/claude-code>) or **Claude Cowork** (claude.ai / Desktop)
-- For Claude Code: **Node 20+** — gives you `npx` and `git`. Use nvm if you need to upgrade.
+- For Claude Code: **git**. The `lwc` CLI itself is a standalone binary — no Node/npm needed. (Individual workshops whose *content* uses Node still list that as a workshop-level prereq.)
 
 That's it. **No `gh` CLI, no GitHub account, no pnpm install up front.** The CLI handles everything; first run prompts a browser sign-in.
 
@@ -52,16 +60,16 @@ That's it. **No `gh` CLI, no GitHub account, no pnpm install up front.** The CLI
 The plugin ships **skills only**. The MCP transport is a separate piece, and the right answer depends on which surface you're using:
 
 - **Cowork** — add the **LWC Custom Connector** alongside the plugin. The connector signs in via OAuth and talks to `mcp.workshop.institute/mcp`. The plugin's skills then drive the workshop.
-- **Claude Code** — each cloned workshop project ships its own `.mcp.json`, which spawns the `@learning-with-court/cli` as the MCP transport. The `lwc` plugin's orchestrator/lesson-runner skills give you guided lesson walks on top.
+- **Claude Code** — each cloned workshop project ships its own `.mcp.json`, which spawns the `lwc` CLI as the MCP transport. The `lwc` plugin's orchestrator/lesson-runner skills give you guided lesson walks on top.
 
 One install page covers both flows: <https://workshop.institute/add-to-claude>
 
 ## Other coding agents (Cursor, Codex, Cline, Zed, …)
 
-The marketplace is Claude-specific, but the underlying CLI is agent-agnostic. From any terminal:
+The marketplace is Claude-specific, but the underlying CLI is agent-agnostic. Install it once (`curl -fsSL https://get.workshop.institute | sh`), then from any terminal:
 
 ```
-npx -y @learning-with-court/cli@latest setup mcp-workshop
+lwc setup mcp-workshop
 ```
 
 Add `--dir <path>` if you want it somewhere specific. Then `cd` into the cloned folder (the CLI prints the exact path) and open it in your agent. The cloned `.mcp.json` wires up the workshop server identically for any MCP-capable agent.
