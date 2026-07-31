@@ -74,6 +74,43 @@ if (existsSync(pluginsDir) && statSync(pluginsDir).isDirectory()) {
       }
     }
 
+    // hooks/hooks.json (optional): must parse, and every hook entry must be a
+    // command with a string `command`. A malformed hooks file is silently
+    // ignored by the client, so CI is the only place this gets caught.
+    const hooksPath = join(pluginRoot, "hooks", "hooks.json");
+    if (existsSync(hooksPath)) {
+      try {
+        const h = JSON.parse(readFileSync(hooksPath, "utf8"));
+        if (!h.hooks || typeof h.hooks !== "object") {
+          fail(hooksPath, "missing required field: hooks");
+        } else {
+          let count = 0;
+          for (const [event, matchers] of Object.entries(h.hooks)) {
+            if (!Array.isArray(matchers)) {
+              fail(hooksPath, `${event}: expected an array of matcher groups`);
+              continue;
+            }
+            for (const group of matchers) {
+              if (!Array.isArray(group.hooks)) {
+                fail(hooksPath, `${event}: matcher group missing hooks[]`);
+                continue;
+              }
+              for (const hook of group.hooks) {
+                if (hook.type !== "command")
+                  fail(hooksPath, `${event}: hook type must be "command"`);
+                if (typeof hook.command !== "string" || !hook.command)
+                  fail(hooksPath, `${event}: hook missing a string command`);
+                else count++;
+              }
+            }
+          }
+          if (count > 0) ok(hooksPath, `${count} hook command(s) ok`);
+        }
+      } catch (e) {
+        fail(hooksPath, `invalid JSON: ${e.message}`);
+      }
+    }
+
     // each skill dir needs a SKILL.md with name + description frontmatter
     const skillsDir = join(pluginRoot, "skills");
     if (!existsSync(skillsDir) || !statSync(skillsDir).isDirectory()) continue;

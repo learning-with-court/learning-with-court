@@ -13,7 +13,7 @@
       "name": "lwc",
       "source": "./plugins/lwc-workshops",
       "description": "Run Learning-with-Court workshops in Claude \u2014 pick a workshop, start it, and get walked through every lesson. Works in Claude Code and Claude Cowork; sign in with your workshop.institute account and the plugin handles the rest.",
-      "version": "0.6.4",
+      "version": "0.7.0",
       "author": {
         "name": "Court Schuett"
       },
@@ -33,7 +33,7 @@
       "name": "lwc-dev",
       "source": "./plugins/lwc-workshops-dev",
       "description": "[DEV CHANNEL] The lwc plugin pointed at the dev environment (mcp-dev.workshop.institute) for testing. Use the `lwc` plugin for real workshops. Generated from `lwc` by scripts/gen-dev-plugin.mjs.",
-      "version": "0.6.4",
+      "version": "0.7.0",
       "author": {
         "name": "Court Schuett"
       },

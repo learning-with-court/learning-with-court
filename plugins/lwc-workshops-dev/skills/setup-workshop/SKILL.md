@@ -52,8 +52,7 @@ learning-with-court hosts technical workshops as deployed MCP servers. The
 `lwc` (a standalone Go binary, installed via a curl one-liner — no
 Node/npm required) is the universal entry point — it does auth, clone,
 refresh, registry, and proxies MCP for in-workshop sessions. This skill
-is a thin wrapper that drives the CLI's `setup` subcommand. This is the
-**dev-channel** variant — installs use `--channel dev`.
+is a thin wrapper that drives the CLI's `setup` subcommand.
 
 By convention, workshops install to `<parent>/<workshop-id>/`. The default
 parent is `~/learning-with-court/`, but if the user is in a sensible working
@@ -179,15 +178,13 @@ Run silently; surface only failures:
   >
   > **macOS / Linux / WSL:**
   > ```
-  > curl -fsSL https://get.workshop.institute | sh -s -- --channel dev
+  > curl -fsSL https://get.workshop.institute | sh
   > ```
   >
   > **Windows (PowerShell):**
   > ```
-  > & ([scriptblock]::Create((irm https://get.workshop.institute/install.ps1))) -Channel dev
+  > irm https://get.workshop.institute/install.ps1 | iex
   > ```
-  > (then run `lwc env switch dev` once installed — channel picks the
-  > binary, env switch picks the backend; both steps are needed)
 
 That's it. **No `gh` CLI, no GitHub account, no API keys.** First-run
 sign-in happens via browser when the CLI runs (or during the install
@@ -231,9 +228,9 @@ requirement, render exactly one line and move on:
 
 ### 2b. Pace signals (informational, no blocking)
 
-Probe the user's environment to infer a default workshop pace. The
-result becomes the `pace:` field in `.claude/lwc-workshop.local.md`,
-read by the workshop's SessionStart hook to set tone for every lesson.
+Probe the user's environment (read-only, informational). The probes no longer choose
+the pace — every learner starts at `slow` (see 2c) — but the signals are still worth
+collecting: surface any failed probe as a setup issue to fix.
 
 **Announce the probes before running them**, in one line, so the user
 knows these are read-only tool checks — not authentication. Watching
@@ -261,37 +258,18 @@ Probes (each its own Bash call):
 | `shell_dotfiles` | `test -s ~/.zshrc \|\| test -s ~/.bashrc` | exit 0 |
 | `gitconfig` | `git config --global user.name` | stdout non-empty |
 
-Inference (count of `true` of 6):
-
-- 0–2 → `slow` — explain everything before doing it; pause at every step
-- 3–4 → `balanced` — explain new concepts, move through familiar material
-- 5–6 → `quick` — minimal hand-holding; you drive
-
 If any individual probe is blocked or errors, mark its signal as
-`unknown` and continue. Default to `balanced` if ≥3 signals are unknown.
+`unknown` and continue.
 
-### 2c. Show the inferred pace + offer override
+### 2c. Persist the pace (no question)
 
-**Before persisting,** show the user what you inferred and let them
-override. Render in a single `>` quote block:
+Persist `pace: slow` for every learner — do not ask, do not offer a menu. Write it to
+`.claude/lwc-workshop.local.md` and move on to step 3.
 
-> Based on your environment, I'd suggest **`<inferred-pace>`** pacing
-> *(<short rationale, e.g. "you have most of the dev tools we look for")*.
-> Three options:
->
-> - **slow** — explain concepts before mechanics, pause for "got it" between steps
-> - **balanced** — explain new concepts, move through familiar material
-> - **quick** — minimal hand-holding; focus on the interesting bits
->
-> Default `<inferred-pace>`. Want a different pace, or stick with the
-> default?
+Mention it in ONE passing line (not a question, no wait):
 
-Wait for the user's response. Accept any of:
-- `<empty>` / `yes` / `ok` / `sure` → use the default
-- `slow` / `balanced` / `quick` → use that
-- Anything else conversational → ask once more for one of the three
-
-Persist whatever was chosen, even if it differs from the inference.
+> I've set the workshop to its default pace — thorough, with explanations before the
+> mechanics. If it ever feels slow, say so and I'll switch you to a faster pace.
 
 ### 3. Decide where to install, then run setup
 
@@ -346,8 +324,8 @@ recorded in `~/.lwc/workshops.json`). Then write
 
 ```markdown
 ---
-pace: balanced
-inferred_at: 2026-05-09T04:21:26Z
+pace: slow
+written_at: 2026-05-09T04:21:26Z
 signals:
   gh: true
   pnpm: true
@@ -364,8 +342,7 @@ Written by setup-workshop based on a probe of your environment. Edit
 workshop session for the change to take effect.
 ```
 
-Use the user's chosen pace from step 2c (which may be the inferred default
-or an override). Get the timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`.
+Write `pace: slow` (step 2c sets it for everyone). Get the timestamp from `date -u +%Y-%m-%dT%H:%M:%SZ`.
 
 ### 5. Hand off
 
