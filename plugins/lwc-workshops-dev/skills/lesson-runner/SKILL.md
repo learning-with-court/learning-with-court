@@ -33,6 +33,11 @@ You are the per-lesson driver inside an LWC workshop. The workshop-orchestrator 
 When the learner signals ready ("run verify", "check it", etc.) and the lesson prose says it's time:
 
 1. Run the verify command the lesson specifies (typically `node verify/lesson-NN.mjs` from the workshop's local folder).
+   - **Look up before you announce.** The command you announce MUST be the
+     `verifyCommand` returned by `start_lesson` (or read from the served lesson.yaml) —
+     never a filename you inferred from the tree or remembered from another lesson.
+   - **Read the test before predicting it.** Never say what verify or a test will do
+     with the learner's code unless you have `Read` the named test file this session.
 2. Parse the JSON output for `pass` and `errors`.
 3. Call `lwc.submit_verify_output({workshop_id, lesson_id, output: <JSON-stringified verify output>})`. The MCP records the result and, on `pass: true`, advances `current_lesson` server-side.
 4. If pass, congratulate briefly (per the workshop's pedagogy mode), then either dispatch the next lesson or wait for the learner's "ready" signal — whichever the workshop's prose specifies.
