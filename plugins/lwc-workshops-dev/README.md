@@ -21,7 +21,7 @@ Full instructions: <https://workshop.institute/add-to-claude>
 In Code, the `lwc` CLI runs as a stdio MCP server out of each workshop's `.mcp.json`. Installing the plugin gives you the conversational entry point (`setup-workshop` — just say "set up the mcp workshop") plus the orchestrator/lesson-runner skills for guided lesson walks. Prefer the CLI directly? That works too:
 
 ```
-curl -fsSL https://get.workshop.institute | sh -s -- --channel dev
+curl -fsSL https://get.workshop.institute | sh
 lwc auth login
 lwc setup <workshop-id>
 ```
