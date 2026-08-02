@@ -1,6 +1,6 @@
 {
   "name": "lwc-dev",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "[DEV CHANNEL — points at the dev environment, for testing] Run Learning-with-Court workshops in Claude — pick a workshop, start it, and get walked through every lesson. Works in Claude Code and Claude Cowork; sign in with your workshop.institute account and the plugin handles the rest.",
   "author": {
     "name": "Court Schuett"
