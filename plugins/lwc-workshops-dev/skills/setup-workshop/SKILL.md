@@ -201,10 +201,19 @@ one-line confirmation** — no explanation, no setup ladder.
 
 | Helper | Command | Satisfied when |
 |---|---|---|
-| Anthropic API key | `grep -q '^ANTHROPIC_API_KEY=' .env && echo "present" \|\| echo "missing"` | stdout is `present` |
+| Anthropic API key | `grep -qE '^ANTHROPIC_API_KEY=.+' .env && echo "present" \|\| echo "missing"` | stdout is `present` |
 | Claude Code | `which claude` | exit 0 |
 | Workshop directory | `test -f workshop.yaml` | exit 0 (run from install path) |
-| Clerk auth | `lwc auth whoami` | exit 0 |
+| Clerk auth | `lwc auth status` | exit 0 |
+
+A probe's pass condition must be something only a WORKING state can
+produce. Both of these were wrong in exactly opposite directions and
+shipped that way: `lwc auth whoami` is not a subcommand, so it exited 1
+for every learner however well they were signed in, and the key check
+matched `.env.example`'s deliberately-empty `ANTHROPIC_API_KEY=` line,
+so it reported `present` when nothing was set. Never probe for the
+presence of a line; probe for a value, or for a command that fails when
+the thing is actually broken.
 
 On Windows, replace `which claude` with `Get-Command claude` (consistent
 with existing cross-platform notes in this skill).
