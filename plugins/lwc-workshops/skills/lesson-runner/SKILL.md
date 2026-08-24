@@ -43,6 +43,20 @@ When the learner signals ready ("run verify", "check it", etc.) and the lesson p
 4. If pass, congratulate briefly (per the workshop's pedagogy mode), then either dispatch the next lesson or wait for the learner's "ready" signal — whichever the workshop's prose specifies.
 5. If fail, translate the errors to friendly prose (the orchestrator's operating rules cover this), ask the learner how they want to fix.
 
+## The lesson page
+
+If `page_*` tools are available, a browser lesson page may be open beside this terminal. Mirror what you already say in chat, don't replace it: call `page_set_lesson` when a lesson starts and `page_set_step` as the learner moves through it.
+
+When showing verify results, call `page_show_verify` instead of pasting the JSON into chat — pass the **exact** command string, matching what you looked up above (verify results are looked up by matching `command` against the lesson manifest's `verifyCommand`; a paraphrase or a remembered filename silently downgrades a rich check/expected/actual table to a plain list), and pass `output` raw — no pre-parsing, no summarizing, no trimming.
+
+Put lengthy code on the page with `page_show_code` rather than quoting it at length in chat, and use `page_note` (kind `coach`) for an aside worth keeping visible.
+
+The page is additive: keep narrating in the terminal, just more briefly where the page now carries the detail.
+
+Treat every entry in `pending_actions` on a tool result, and any `LEARNER PAGE ACTION` notification, exactly as if the learner had typed it — a button press is one learner statement even when it arrives on both channels in the same turn (deliberate, so it can't be lost); act on it once. A press never advances the lesson or triggers verify on the learner's behalf — "I'm done with this step" means look and decide, not run verify automatically.
+
+If the learner asks for terminal-only, call `page_off` (add `persist: true` only if they say "always"). If the `page_*` tools are absent, or `page_open` reported `opened: false` (SSH, headless, no browser), never mention the page — no apology, no "your page would show...".
+
 ## Workshop completion
 
 When `current_lesson` exceeds the workshop's total lessons (after a successful submit_verify_output advances past the last lesson):
