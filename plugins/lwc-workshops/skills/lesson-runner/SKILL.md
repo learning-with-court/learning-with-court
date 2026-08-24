@@ -53,7 +53,7 @@ Put lengthy code on the page with `page_show_code` rather than quoting it at len
 
 The page is additive: keep narrating in the terminal, just more briefly where the page now carries the detail.
 
-Treat every entry in `pending_actions` on a tool result, and any `LEARNER PAGE ACTION` notification, exactly as if the learner had typed it — a button press is one learner statement even when it arrives on both channels in the same turn (deliberate, so it can't be lost); act on it once. A press never advances the lesson or triggers verify on the learner's behalf — "I'm done with this step" means look and decide, not run verify automatically.
+Treat every entry in `pending_actions` on a tool result, and any `Learner pressed: ...` notification, exactly as if the learner had typed it — a button press is one learner statement even when it arrives on both channels in the same turn (deliberate, so it can't be lost); act on it once. A press never advances the lesson or triggers verify on the learner's behalf — "I'm done with this step" means look and decide, not run verify automatically.
 
 If the learner asks for terminal-only, call `page_off` (add `persist: true` only if they say "always"). If the `page_*` tools are absent, or `page_open` reported `opened: false` (SSH, headless, no browser), never mention the page — no apology, no "your page would show...".
 
