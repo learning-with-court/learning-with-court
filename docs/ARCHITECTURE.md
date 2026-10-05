@@ -64,6 +64,15 @@ That's it. Maybe 80 lines total (200-400 realistic once `debug-my-mcp-server`, `
 
 **Distribution: project-scoped install.** Learners install the plugin into the directory they're taking the workshop in (`<repo>/.claude/plugins/` or equivalent), not user-scoped. Two reasons: (1) the PreToolUse edit-blocking hook would fire against every project on the learner's machine if user-scoped, which is wrong; (2) project-scoping keeps workshop tooling bound to workshop work. Trade-off: re-install per workshop, but that's a one-line copy command we document.
 
+### Claude Code plugin behaviour that shapes how we ship
+
+- **Plugins are cached by version.** To ship changed skills, bump the version in `plugins/<plugin>/.claude-plugin/plugin.json` and in `marketplace.json`, run `claude plugin update <plugin>@<marketplace>` (the `@marketplace` suffix is required), then restart the session. A marketplace update alone keeps serving the old skills.
+- **`oauth.callbackPort` pins the loopback port** for a static `oauth.clientId`.
+- **`${VAR}` expansion in `.mcp.json` works in `command`, `args`, `env`, `url` and `headers`, but not inside `oauth`.** That's why dev and prod are separate plugins.
+- **A marketplace source can pin `ref`** (a branch or tag).
+- **`enabledPlugins` doesn't extract files.** A stale `installed_plugins.json` entry with an empty cache dir needs `claude plugin install <p>@<mp>` and a restart.
+- **MCP logs** are in `~/Library/Caches/claude-cli-nodejs/<project>/mcp-logs-plugin-<plugin>-<server>/`.
+
 ## Server-side state model
 
 Reuses bettor-help's session pattern (`/bettor-help/packages/mcp-server/src/bettor_help_mcp/sessions/repo.py`). One DDB table per workshop tenant:
