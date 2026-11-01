@@ -1,20 +1,23 @@
 #!/usr/bin/env node
-// Generate the `lwc-dev` plugin from the canonical `lwc` plugin.
+// Generate the dev-channel plugins from their canonical prod plugins:
+// `lwc-dev` from `lwc`, and `lwc-pages-dev` from `lwc-pages`.
 //
-// The prod plugin (plugins/lwc-workshops) is the single source of truth. The
-// dev plugin (plugins/lwc-workshops-dev) is byte-identical EXCEPT:
+// Each prod plugin (plugins/lwc-workshops, plugins/lwc-pages) is the single source
+// of truth. Its dev plugin (plugins/<dir>-dev) is byte-identical EXCEPT:
 //   - .mcp.json            → points the lwc MCP at the dev env + dev OAuth client
-//   - .claude-plugin/plugin.json → name "lwc-dev" + a dev note in the description
+//   - .claude-plugin/plugin.json → the dev name + a dev note in the description
 //   - README.md            → a one-line dev-channel banner prepended
 //
 // Why a separate plugin and not env-var templating: Claude Code expands
 // ${VAR} in a server's `url` but NOT inside the `oauth` object, so the dev
 // client_id (a different Clerk tenant) can't be injected at runtime — it has to
 // be baked into a distinct plugin. Generating it keeps the skills from drifting.
+// lwc-pages has no .mcp.json: it is a separate dev plugin so that the channel
+// switch works the same for both.
 //
 // Usage:
-//   node scripts/gen-dev-plugin.mjs           # write plugins/lwc-workshops-dev
-//   node scripts/gen-dev-plugin.mjs --check   # exit 1 if the committed dev
+//   node scripts/gen-dev-plugin.mjs           # write the dev plugins
+//   node scripts/gen-dev-plugin.mjs --check   # exit 1 if a committed dev
 //                                             # plugin is out of sync (CI)
 import {
   readFileSync,
@@ -28,8 +31,20 @@ import {
 import { join, dirname, relative } from "node:path";
 
 const ROOT = process.cwd();
-const SRC = join(ROOT, "plugins", "lwc-workshops");
-const OUT = join(ROOT, "plugins", "lwc-workshops-dev");
+const PLUGINS = [
+  {
+    prod: "lwc",
+    dev: "lwc-dev",
+    dir: "lwc-workshops",
+    note: "[DEV CHANNEL — points at the dev environment, for testing] ",
+  },
+  {
+    prod: "lwc-pages",
+    dev: "lwc-pages-dev",
+    dir: "lwc-pages",
+    note: "[DEV CHANNEL — for testing] ",
+  },
+];
 
 // Dev-environment overrides — the only thing that differs from prod.
 const DEV = {
@@ -52,7 +67,7 @@ function listFiles(dir, base = dir) {
 
 /** Transform a source file's contents for the dev plugin. Returns the dev
  *  contents (string). Non-transformed files pass through unchanged. */
-function transform(relPath, raw) {
+function transform(plugin, relPath, raw) {
   if (relPath === ".mcp.json") {
     const j = JSON.parse(raw);
     const lwc = j.mcpServers?.lwc;
@@ -64,10 +79,8 @@ function transform(relPath, raw) {
   }
   if (relPath === join(".claude-plugin", "plugin.json")) {
     const j = JSON.parse(raw);
-    j.name = "lwc-dev";
-    j.description =
-      `[DEV CHANNEL — points at the dev environment, for testing] ` +
-      j.description;
+    j.name = plugin.dev;
+    j.description = plugin.note + j.description;
     return JSON.stringify(j, null, 2) + "\n";
   }
   if (relPath === "README.md") {
@@ -81,38 +94,43 @@ function transform(relPath, raw) {
   return raw;
 }
 
-// Build the desired dev tree in memory.
-const desired = new Map(); // relPath -> contents
-for (const rel of listFiles(SRC)) {
-  desired.set(rel, transform(rel, readFileSync(join(SRC, rel), "utf8")));
-}
+for (const plugin of PLUGINS) {
+  const SRC = join(ROOT, "plugins", plugin.dir);
+  const OUT = join(ROOT, "plugins", `${plugin.dir}-dev`);
 
-if (checkOnly) {
-  const existing = existsSync(OUT) ? listFiles(OUT) : [];
-  const drift = [];
-  // Files that should exist / changed.
-  for (const [rel, want] of desired) {
+  // Build the desired dev tree in memory.
+  const desired = new Map(); // relPath -> contents
+  for (const rel of listFiles(SRC)) {
+    desired.set(rel, transform(plugin, rel, readFileSync(join(SRC, rel), "utf8")));
+  }
+
+  if (checkOnly) {
+    const existing = existsSync(OUT) ? listFiles(OUT) : [];
+    const drift = [];
+    // Files that should exist / changed.
+    for (const [rel, want] of desired) {
+      const p = join(OUT, rel);
+      if (!existsSync(p) || readFileSync(p, "utf8") !== want) drift.push(rel);
+    }
+    // Stale files that shouldn't exist.
+    for (const rel of existing) if (!desired.has(rel)) drift.push(`(stale) ${rel}`);
+    if (drift.length) {
+      console.log(
+        `::error::${relative(ROOT, OUT)} is out of sync. Run \`node scripts/gen-dev-plugin.mjs\` and commit.`,
+      );
+      for (const d of drift) console.log(`  drift: ${d}`);
+      process.exit(1);
+    }
+    console.log(`✓ ${plugin.dev} plugin is in sync with the ${plugin.prod} plugin`);
+    continue;
+  }
+
+  // Write mode: nuke + rewrite so removed source files don't linger.
+  if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
+  for (const [rel, contents] of desired) {
     const p = join(OUT, rel);
-    if (!existsSync(p) || readFileSync(p, "utf8") !== want) drift.push(rel);
+    mkdirSync(dirname(p), { recursive: true });
+    writeFileSync(p, contents);
   }
-  // Stale files that shouldn't exist.
-  for (const rel of existing) if (!desired.has(rel)) drift.push(`(stale) ${rel}`);
-  if (drift.length) {
-    console.log(
-      `::error::plugins/lwc-workshops-dev is out of sync. Run \`node scripts/gen-dev-plugin.mjs\` and commit.`,
-    );
-    for (const d of drift) console.log(`  drift: ${d}`);
-    process.exit(1);
-  }
-  console.log("✓ lwc-dev plugin is in sync with the lwc plugin");
-  process.exit(0);
+  console.log(`Generated ${relative(ROOT, OUT)} from ${relative(ROOT, SRC)}`);
 }
-
-// Write mode: nuke + rewrite so removed source files don't linger.
-if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
-for (const [rel, contents] of desired) {
-  const p = join(OUT, rel);
-  mkdirSync(dirname(p), { recursive: true });
-  writeFileSync(p, contents);
-}
-console.log(`Generated ${relative(ROOT, OUT)} from ${relative(ROOT, SRC)}`);
