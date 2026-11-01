@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Lightweight validator for the learning-with-court marketplace.
 // - Confirms .claude-plugin/marketplace.json parses and has the required shape.
+//   Plugins carry no version: Claude Code versions them by commit.
 // - Walks plugins/*/: validates each .claude-plugin/plugin.json and every
 //   skills/*/SKILL.md has YAML frontmatter with `name` and `description`.
 // Exits non-zero on first failure; logs are GH-Actions-friendly.
@@ -43,7 +44,6 @@ if (!existsSync(marketplacePath)) {
         const where = `plugins[${i}]`;
         if (!p.name) fail(marketplacePath, `${where}: missing name`);
         if (!p.source) fail(marketplacePath, `${where}: missing source`);
-        if (!p.version) fail(marketplacePath, `${where}: missing version`);
       });
     }
     if (errors.length === 0)
@@ -74,18 +74,28 @@ if (existsSync(pluginsDir) && statSync(pluginsDir).isDirectory()) {
       }
     }
 
-    // hooks/hooks.json (optional): must parse, and every hook entry must be a
-    // command with a string `command`. A malformed hooks file is silently
-    // ignored by the client, so CI is the only place this gets caught.
+    // hooks/hooks.json (optional): must parse, name a module that exists or
+    // hold hooks, and every hook entry must be a command with a string
+    // `command`. A malformed hooks file is silently ignored by the client, so
+    // CI is the only place this gets caught.
     const hooksPath = join(pluginRoot, "hooks", "hooks.json");
     if (existsSync(hooksPath)) {
       try {
         const h = JSON.parse(readFileSync(hooksPath, "utf8"));
-        if (!h.hooks || typeof h.hooks !== "object") {
-          fail(hooksPath, "missing required field: hooks");
+        if (h.modules !== undefined) {
+          if (!Array.isArray(h.modules) || h.modules.length !== 1)
+            fail(hooksPath, "modules must be an array with one path");
+          else if (!existsSync(join(pluginRoot, "hooks", h.modules[0])))
+            fail(hooksPath, `module ${h.modules[0]} is missing`);
+          else ok(hooksPath, `mod ${h.modules[0]} ok`);
+        }
+        if (h.hooks === undefined && h.modules === undefined) {
+          fail(hooksPath, "missing required field: hooks or modules");
+        } else if (h.hooks !== undefined && typeof h.hooks !== "object") {
+          fail(hooksPath, "hooks must be an object");
         } else {
           let count = 0;
-          for (const [event, matchers] of Object.entries(h.hooks)) {
+          for (const [event, matchers] of Object.entries(h.hooks ?? {})) {
             if (!Array.isArray(matchers)) {
               fail(hooksPath, `${event}: expected an array of matcher groups`);
               continue;
