@@ -1,0 +1,6 @@
+{
+  "description": "Starts a turn with each lwc-pages event",
+  "modules": [
+    "./register.js"
+  ]
+}

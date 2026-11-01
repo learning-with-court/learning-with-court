@@ -11,7 +11,7 @@
 //   BIN report landed <token>   the line's prompt started a turn
 //   BIN report turn-ended       a turn completed after one of its lines landed
 
-const NAME = "lwc"
+const NAME = "lwc-pages"
 const BIN = "lwc"
 
 // Claude Code's own words for a prompt it refused or dropped; such a prompt is

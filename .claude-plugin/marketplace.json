@@ -45,6 +45,42 @@
         "testing"
       ],
       "category": "education"
+    },
+    {
+      "name": "lwc-pages",
+      "source": "./plugins/lwc-pages",
+      "description": "The buttons on a Learning-with-Court lesson page: each press reaches the guide in Claude Code. Installed in each workshop folder by lwc; it holds this mod and nothing else.",
+      "author": {
+        "name": "Court Schuett"
+      },
+      "homepage": "https://workshop.institute",
+      "repository": "https://github.com/learning-with-court/learning-with-court",
+      "license": "MIT",
+      "keywords": [
+        "lwc",
+        "learning-with-court",
+        "workshops",
+        "mod"
+      ],
+      "category": "education"
+    },
+    {
+      "name": "lwc-pages-dev",
+      "source": "./plugins/lwc-pages-dev",
+      "description": "[DEV CHANNEL] The lwc-pages mod for the dev channel. Use the `lwc-pages` plugin for real workshops. Generated from `lwc-pages` by scripts/gen-dev-plugin.mjs.",
+      "author": {
+        "name": "Court Schuett"
+      },
+      "homepage": "https://workshop.institute",
+      "repository": "https://github.com/learning-with-court/learning-with-court",
+      "license": "MIT",
+      "keywords": [
+        "lwc",
+        "learning-with-court",
+        "dev",
+        "testing"
+      ],
+      "category": "education"
     }
   ]
 }

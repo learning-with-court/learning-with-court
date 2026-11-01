@@ -1,0 +1,13 @@
+{
+  "name": "lwc-pages-dev",
+  "description": "[DEV CHANNEL — for testing] The buttons on a Learning-with-Court lesson page: each press reaches the guide in Claude Code. Installed in each workshop folder by lwc; it holds this mod and nothing else.",
+  "author": {
+    "name": "Court Schuett"
+  },
+  "keywords": [
+    "lwc",
+    "learning-with-court",
+    "workshops",
+    "mod"
+  ]
+}

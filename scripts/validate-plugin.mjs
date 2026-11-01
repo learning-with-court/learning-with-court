@@ -4,6 +4,8 @@
 //   Plugins carry no version: Claude Code versions them by commit.
 // - Walks plugins/*/: validates each .claude-plugin/plugin.json and every
 //   skills/*/SKILL.md has YAML frontmatter with `name` and `description`.
+// - A plugin with a mod holds the mod and nothing else: whatever sits beside it
+//   would load in every workshop folder.
 // Exits non-zero on first failure; logs are GH-Actions-friendly.
 
 import { readFileSync, statSync, readdirSync, existsSync } from "node:fs";
@@ -69,6 +71,8 @@ if (existsSync(pluginsDir) && statSync(pluginsDir).isDirectory()) {
         else if (!/^[a-z][a-z0-9-]*$/.test(p.name))
           fail(pluginJsonPath, `plugin name "${p.name}" must match ^[a-z][a-z0-9-]*$`);
         else ok(pluginJsonPath, `plugin "${p.name}" manifest ok`);
+        if (p.version !== undefined)
+          fail(pluginJsonPath, "must carry no version: Claude Code versions plugins by commit");
       } catch (e) {
         fail(pluginJsonPath, `invalid JSON: ${e.message}`);
       }
@@ -87,7 +91,13 @@ if (existsSync(pluginsDir) && statSync(pluginsDir).isDirectory()) {
             fail(hooksPath, "modules must be an array with one path");
           else if (!existsSync(join(pluginRoot, "hooks", h.modules[0])))
             fail(hooksPath, `module ${h.modules[0]} is missing`);
-          else ok(hooksPath, `mod ${h.modules[0]} ok`);
+          else {
+            ok(hooksPath, `mod ${h.modules[0]} ok`);
+            const allowed = new Set([".claude-plugin", "hooks"]);
+            for (const name of readdirSync(pluginRoot))
+              if (!allowed.has(name))
+                fail(hooksPath, `a plugin with a mod holds nothing else, but has ${name}`);
+          }
         }
         if (h.hooks === undefined && h.modules === undefined) {
           fail(hooksPath, "missing required field: hooks or modules");
