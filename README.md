@@ -65,9 +65,9 @@ Add `--dir <path>` if you want it somewhere specific. Then `cd` into the cloned 
 
 ## First run: signing in
 
-The first time you run `claude` inside a workshop project and the workshop tries to do anything, Claude Code will open a browser to sign you in. You'll either sign into an existing workshop.institute account or create one (sign-up is free).
+The first time you run `lwc setup` (or `lwc auth login`), `lwc` opens a browser once to sign you in. You'll either sign into an existing workshop.institute account or create one (sign-up is free).
 
-After sign-in, your JWT is cached locally. Subsequent sessions skip the browser dance until the token expires (typically hours-to-days). If a session needs to re-authenticate, you'll see the browser open again — that's expected.
+After that, Claude Code doesn't ask you to sign in again. Each workshop's MCP server runs through `lwc`, on the token `lwc` cached, and `lwc` refreshes that token silently. If your sign-in ever lapses, `lwc` tells you to run `lwc auth login`.
 
 Your authenticated identity keys your workshop progress on the server. Sign in on a different machine with the same workshop.institute account, and your progress is preserved.
 
