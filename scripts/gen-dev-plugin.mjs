@@ -4,16 +4,13 @@
 //
 // Each prod plugin (plugins/lwc-workshops, plugins/lwc-pages) is the single source
 // of truth. Its dev plugin (plugins/<dir>-dev) is byte-identical EXCEPT:
-//   - .mcp.json            → points the lwc MCP at the dev env + dev OAuth client
 //   - .claude-plugin/plugin.json → the dev name + a dev note in the description
 //   - README.md            → a one-line dev-channel banner prepended
 //
-// Why a separate plugin and not env-var templating: Claude Code expands
-// ${VAR} in a server's `url` but NOT inside the `oauth` object, so the dev
-// client_id (a different Clerk tenant) can't be injected at runtime — it has to
-// be baked into a distinct plugin. Generating it keeps the skills from drifting.
-// lwc-pages has no .mcp.json: it is a separate dev plugin so that the channel
-// switch works the same for both.
+// Why a separate plugin: `lwc` registers the dev plugins on the dev env, pinned to
+// the marketplace's dev ref, so the dev channel tests that ref under its own name.
+// Which environment they talk to comes from `lwc env`, not from the plugin.
+// Generating them keeps the skills from drifting.
 //
 // Usage:
 //   node scripts/gen-dev-plugin.mjs           # write the dev plugins
@@ -36,7 +33,7 @@ const PLUGINS = [
     prod: "lwc",
     dev: "lwc-dev",
     dir: "lwc-workshops",
-    note: "[DEV CHANNEL — points at the dev environment, for testing] ",
+    note: "[DEV CHANNEL — for testing] ",
   },
   {
     prod: "lwc-pages",
@@ -45,12 +42,6 @@ const PLUGINS = [
     note: "[DEV CHANNEL — for testing] ",
   },
 ];
-
-// Dev-environment overrides — the only thing that differs from prod.
-const DEV = {
-  mcpUrl: "https://mcp-dev.workshop.institute/mcp",
-  oauthClientId: "f72LotUV2DW3dgd4", // dev Clerk tenant (enjoyed-walrus-25)
-};
 
 const checkOnly = process.argv.includes("--check");
 
@@ -68,15 +59,6 @@ function listFiles(dir, base = dir) {
 /** Transform a source file's contents for the dev plugin. Returns the dev
  *  contents (string). Non-transformed files pass through unchanged. */
 function transform(plugin, relPath, raw) {
-  if (relPath === ".mcp.json") {
-    const j = JSON.parse(raw);
-    const lwc = j.mcpServers?.lwc;
-    if (!lwc) throw new Error(".mcp.json: expected mcpServers.lwc");
-    lwc.url = DEV.mcpUrl;
-    if (!lwc.oauth) throw new Error(".mcp.json: expected mcpServers.lwc.oauth");
-    lwc.oauth.clientId = DEV.oauthClientId; // callbackPort etc. inherited
-    return JSON.stringify(j, null, 2) + "\n";
-  }
   if (relPath === join(".claude-plugin", "plugin.json")) {
     const j = JSON.parse(raw);
     j.name = plugin.dev;
@@ -86,7 +68,7 @@ function transform(plugin, relPath, raw) {
   if (relPath === "README.md") {
     return (
       "> **Dev channel.** Generated from the `lwc` plugin by " +
-      "`scripts/gen-dev-plugin.mjs`; points at `mcp-dev.workshop.institute`. " +
+      "`scripts/gen-dev-plugin.mjs`. " +
       "Do not edit by hand — edit the `lwc` plugin and regenerate.\n\n" +
       raw
     );

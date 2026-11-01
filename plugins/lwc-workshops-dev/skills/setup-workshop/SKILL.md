@@ -1,50 +1,27 @@
 ---
 name: setup-workshop
-description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "I'd like to learn <topic>", "I want to learn how to <build X>", "teach me <topic>", "help me get started", "set up a workshop", "start a workshop", "set up the <name> workshop", "begin the lwc workshop". In Claude Code this drives the clone of the workshop's project codebase via the `lwc` CLI into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there; the list of available workshops is fetched live from `lwc catalog`. In Claude Cowork (claude.ai / Desktop) there is no host CLI — follow the skill's surface check, which routes the learner to the lwc connector + workshop-orchestrator flow instead. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
+description: Use this when the user wants to start a learning-with-court workshop they don't have set up yet — phrases like "I'd like to learn <topic>", "I want to learn how to <build X>", "teach me <topic>", "help me get started", "set up a workshop", "start a workshop", "set up the <name> workshop", "begin the lwc workshop". This drives the clone of the workshop's project codebase via the `lwc` CLI into a folder under the user's working directory (or `~/learning-with-court/` by default) and tells the user how to start a fresh session there; the list of available workshops is fetched live from `lwc catalog`. Do NOT use this if the user is already inside a workshop project (look for a .mcp.json with an `lwc-*` server entry — they're already set up).
 ---
 
 You're setting up a learning-with-court workshop for the user.
 
 ## Stay quiet about internals — read this first
 
-Do every surface and routing check **silently**. Which surface you're on,
-whether you're inside a workshop project, which skill should drive — all of
-that is INTERNAL plumbing the learner must never see. Don't narrate it, and
+Do every routing check **silently**. Whether you're inside a workshop project,
+which step you're on — all of that is INTERNAL plumbing the learner must never
+see. Don't narrate it, and
 don't preface the catalog with step-by-step rationale for your tool calls.
 
-Specifically, never say things like "let me check which surface I'm on", "I'm
-on Claude Code", "the Code-surface path", "Step 1 is non-optional", or name
-which skill you're switching to — and never mention "surface", "surface
-contract", "director flow", or "Cowork" to the learner.
+Specifically, never say things like "Step 1 is non-optional", or name which
+skill you're switching to.
 
 **Your first learner-visible output is a short greeting plus the workshop
 catalog** (the grouped list from `lwc catalog`) — nothing before it. A
 friendly one-liner ahead of the list is fine ("Here's what's available to set
-up:"). All the routing, surface, and gating logic below must still HAPPEN —
-just do it silently and lead with the catalog. (The one exception is a genuine
-failure the learner must act on — e.g. `lwc` not installed, or a Cowork
-session with no connector — which you surface per the relevant section.)
-
-## Surface check — do this FIRST
-
-Everything below this section is for **Claude Code** (a terminal session on
-the user's machine). If you are running in **Claude Cowork** (claude.ai or
-the Claude desktop app — a sandboxed environment with no access to the
-user's terminal, home directory, or host-installed CLIs), STOP here and run
-none of the CLI steps. Workshops in Cowork aren't cloned; they run through
-the **lwc connector** and the **workshop-orchestrator** skill:
-
-1. If lwc workshop tools are available in this session, hand off to the
-   workshop-orchestrator skill and let it drive.
-2. If no lwc tools are available, the connector isn't set up yet. Point the
-   user at the one-page guide — <https://workshop.institute/add-to-claude>
-   (the claude.ai tab): Customize → Connectors → lwc → Connect, then come
-   back and say "let's start a workshop." Never instruct a Cowork user to
-   run shell commands.
-
-If you're unsure which surface you're on: Claude Code sessions have a fixed
-working directory on the user's machine and a Bash tool that runs host
-commands; Cowork sessions don't.
+up:"). All the routing and gating logic below must still HAPPEN — just do it
+silently and lead with the catalog. (The one exception is a genuine failure the
+learner must act on — e.g. `lwc` not installed — which you surface per the
+relevant section.)
 
 ## Background
 
