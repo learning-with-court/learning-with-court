@@ -67,7 +67,7 @@ Add `--dir <path>` if you want it somewhere specific. Then `cd` into the cloned 
 
 The first time you run `lwc setup` (or `lwc auth login`), `lwc` opens a browser once to sign you in. You'll either sign into an existing workshop.institute account or create one (sign-up is free).
 
-After that, Claude Code doesn't ask you to sign in again. Each workshop's MCP server runs through `lwc`, on the token `lwc` cached, and `lwc` refreshes that token silently. If your sign-in ever lapses, `lwc` tells you to run `lwc auth login`.
+After that, Claude Code doesn't ask you to sign in again. Each workshop's MCP server runs through `lwc`, on the token `lwc` cached, and `lwc` refreshes that token silently. If your sign-in ever lapses, `lwc` opens the browser again to renew it.
 
 Your authenticated identity keys your workshop progress on the server. Sign in on a different machine with the same workshop.institute account, and your progress is preserved.
 
