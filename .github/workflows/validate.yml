@@ -25,3 +25,11 @@ jobs:
 
       - name: Check lwc-dev plugin is in sync with lwc
         run: node scripts/gen-dev-plugin.mjs --check
+
+      - name: Validate both plugins with Claude Code
+        shell: bash
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          export PATH="$HOME/.local/bin:$PATH"
+          claude plugin validate plugins/lwc-workshops
+          claude plugin validate plugins/lwc-workshops-dev
