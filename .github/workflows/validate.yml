@@ -23,5 +23,15 @@ jobs:
       - name: Validate marketplace and plugin manifests
         run: node scripts/validate-plugin.mjs
 
-      - name: Check lwc-dev plugin is in sync with lwc
+      - name: Check the dev plugins are in sync with theirs
         run: node scripts/gen-dev-plugin.mjs --check
+
+      - name: Validate all four plugins with Claude Code
+        shell: bash
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          export PATH="$HOME/.local/bin:$PATH"
+          claude plugin validate plugins/lwc-workshops
+          claude plugin validate plugins/lwc-workshops-dev
+          claude plugin validate plugins/lwc-pages
+          claude plugin validate plugins/lwc-pages-dev
