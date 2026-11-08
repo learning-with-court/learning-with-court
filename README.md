@@ -23,10 +23,10 @@ New workshops appear automatically as they're added to your account — no plugi
 2. Type:  /plugin marketplace add learning-with-court/learning-with-court
 3. Type:  /plugin install lwc@learning-with-court
 4. Type:  /reload-plugins
-5. Tell Claude:  set up the mcp workshop
+5. Tell Claude:  set up the claude code basics workshop
 ```
 
-That's the whole guide. Claude takes it from there — checks your tools, runs `lwc setup mcp-workshop --dir <your-folder>/mcp-workshop`, opens a browser for one-time sign-in, clones the workshop into `<your-folder>/mcp-workshop/` (or under `~/learning-with-court/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
+That's the whole guide. Claude takes it from there — checks your tools, runs `lwc setup claude-code-basics --dir <your-folder>/claude-code-basics`, opens a browser for one-time sign-in, clones the workshop into `<your-folder>/claude-code-basics/` (or under `~/learning-with-court/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
 
 The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — additional workshops only need step 5.
 
@@ -58,7 +58,7 @@ Install page: <https://workshop.institute/add-to-claude>
 The marketplace is Claude-specific, but the underlying CLI is agent-agnostic. Install it once (`curl -fsSL https://get.workshop.institute | sh`), then from any terminal:
 
 ```
-lwc setup mcp-workshop
+lwc setup claude-code-basics
 ```
 
 Add `--dir <path>` if you want it somewhere specific. Then `cd` into the cloned folder (the CLI prints the exact path) and open it in your agent. The cloned `.mcp.json` wires up the workshop server identically for any MCP-capable agent.
