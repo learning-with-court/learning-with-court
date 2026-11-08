@@ -1,80 +1,63 @@
 # learning-with-court
 
-Interactive technical and creative workshops that run inside Claude Code. This is the marketplace — add it once, then start any workshop in your catalog with a single prompt.
+Interactive technical and creative workshops that run inside Claude Code. This is the marketplace for the `lwc` plugin, which helps you pick a workshop from Claude Code.
 
-**Start here: <https://workshop.institute>** — sign up free, then come back for the install steps below.
+## Start a workshop
+
+Pick a workshop at <https://workshop.institute/workshops>. Each workshop's page shows one line to paste into a terminal, with that workshop's id in place of `<id>`.
+
+macOS and Linux:
+
+```
+curl -fsSL https://get.workshop.institute | sh -s -- --start <id>
+```
+
+Windows (PowerShell):
+
+```
+$script = iwr https://get.workshop.institute/install.ps1 -useb; Invoke-Expression "& { $script } -Start <id>"
+```
+
+The line installs the `lwc` CLI and runs `lwc start <id>`. A browser tab then checks your computer, installs what the workshop needs, signs you in, and opens the workshop with the first lesson beside Claude Code. What happens at each step is at <https://workshop.institute/getting-started>.
+
+`lwc start` installs this marketplace's plugin itself, so you don't add it by hand. To come back to a workshop later, run `lwc start` in any terminal: it opens your workshop again, or lets you choose one if you have several.
 
 ## What's in this marketplace
 
 | Plugin | What it does |
 |---|---|
-| `lwc` | Starts any workshop. `setup-workshop` clones a workshop's project codebase via the `lwc` CLI and hands you off to a fresh session inside it. Workshop content (lesson prose, verify scripts) is served at runtime from `workshop.institute`. |
+| `lwc` | Helps you choose a workshop. Its `setup-workshop` skill lists the catalog with `lwc catalog` and hands you `lwc start <id>` to paste into a new terminal window. Workshop content (lesson prose, verify scripts) is served at runtime from `workshop.institute`. |
 
 New workshops appear automatically as they're added to your account — no plugin update needed.
 
-## Install in Claude Code
-
-```
-0. Open a terminal in a folder you want to use for workshops, e.g.:
-     macOS / Linux / WSL:  mkdir -p ~/workshops && cd ~/workshops
-     Windows PowerShell:   mkdir $HOME\workshops; cd $HOME\workshops
-   Any folder works — this becomes the parent for everything you install.
-1. Start Claude Code there:  claude
-2. Type:  /plugin marketplace add learning-with-court/learning-with-court
-3. Type:  /plugin install lwc@learning-with-court
-4. Type:  /reload-plugins
-5. Tell Claude:  set up the claude code basics workshop
-```
-
-That's the whole guide. Claude takes it from there — checks your tools, runs `lwc setup claude-code-basics --dir <your-folder>/claude-code-basics`, opens a browser for one-time sign-in, clones the workshop into `<your-folder>/claude-code-basics/` (or under `~/learning-with-court/` if you skipped step 0), and hands you off to a fresh Claude Code session inside.
-
-The plugin installs at user scope by default, so once you've done steps 1-4 you don't need to do them again — additional workshops only need step 5.
-
-Prefer the CLI directly? Install it once:
-
-```
-curl -fsSL https://get.workshop.institute | sh
-```
-
-(Windows PowerShell: `irm https://get.workshop.institute/install.ps1 | iex`)
-
-Then `lwc setup <workshop-id>` — the cloned project wires up the workshop's MCP server on its own. `lwc update` self-updates the CLI; `lwc refresh <id>` pulls the latest workshop content into an existing clone.
-
 ## Requirements
 
-- **Claude Code** (<https://claude.com/claude-code>)
-- **git**. The `lwc` CLI itself is a standalone binary — no Node/npm needed. (Individual workshops whose *content* uses Node still list that as a workshop-level prereq.)
+- **A Claude plan.** Claude Code needs a Claude Pro, Max, Ultra, Team or Enterprise plan, or a Claude Console account.
+- **Claude Code and git.** The start page installs them if they're missing. The `lwc` CLI itself is a standalone binary, with no Node or npm needed.
 
-That's it. **No `gh` CLI, no GitHub account, no pnpm install up front.** The CLI handles everything; first run prompts a browser sign-in.
+Each workshop's page lists anything else it needs. The start page installs what it can and names the rest before setup begins.
 
 ## How MCP is wired
 
 The plugin ships **no MCP server**. Each cloned workshop project ships its own `.mcp.json`, which spawns the `lwc` CLI as the MCP transport, on the token from `lwc`'s sign-in.
 
-Install page: <https://workshop.institute/add-to-claude>
+Getting started: <https://workshop.institute/getting-started>
 
 ## Other coding agents (Cursor, Codex, Cline, Zed, …)
 
-The marketplace is Claude-specific, but the underlying CLI is agent-agnostic. Install it once (`curl -fsSL https://get.workshop.institute | sh`), then from any terminal:
+The marketplace is Claude-specific, but the workshop server isn't. A workshop folder that `lwc start` set up ships a `.mcp.json` that runs the `lwc` CLI as its MCP server, so any MCP-capable agent can open that folder and reach the same workshop.
 
-```
-lwc setup claude-code-basics
-```
+## Signing in
 
-Add `--dir <path>` if you want it somewhere specific. Then `cd` into the cloned folder (the CLI prints the exact path) and open it in your agent. The cloned `.mcp.json` wires up the workshop server identically for any MCP-capable agent.
-
-## First run: signing in
-
-The first time you run `lwc setup` (or `lwc auth login`), `lwc` opens a browser once to sign you in. You'll either sign into an existing workshop.institute account or create one (sign-up is free).
+The start page signs you in through your browser the first time. You either sign in to an existing workshop.institute account or create one.
 
 After that, Claude Code doesn't ask you to sign in again. Each workshop's MCP server runs through `lwc`, on the token `lwc` cached, and `lwc` refreshes that token silently. If your sign-in ever lapses, `lwc` opens the browser again to renew it.
 
-Your authenticated identity keys your workshop progress on the server. Sign in on a different machine with the same workshop.institute account, and your progress is preserved.
+Your signed-in identity keys your workshop progress on the server. Sign in on a different machine with the same workshop.institute account, and your progress is preserved.
 
 ## Notes
 
-- **You'll run `pnpm install` yourself once you `cd` in.** Claude Code's auto-mode classifier blocks `pnpm install` from any context (lifecycle scripts run arbitrary code).
-- **Cross-platform.** macOS, Linux, and Windows (WSL or Git Bash) all work. Native PowerShell is best-effort.
+- **Cross-platform.** macOS, Linux and Windows all work. On Windows, paste the PowerShell line.
 
 ## What this marketplace isn't
 
@@ -83,13 +66,13 @@ Your authenticated identity keys your workshop progress on the server. Sign in o
 
 ## What's in this repo
 
-- [`plugins/lwc-workshops/`](./plugins/lwc-workshops) — the `lwc` plugin: the setup-workshop skill.
+- [`plugins/lwc-workshops/`](./plugins/lwc-workshops) — the `lwc` plugin: the setup-workshop skill, which hands you `lwc start <id>`.
 - [`.claude-plugin/marketplace.json`](./.claude-plugin/marketplace.json) — marketplace metadata.
 - [`docs/`](./docs) — design docs ([VISION](./docs/VISION.md), [ARCHITECTURE](./docs/ARCHITECTURE.md), [REFERENCE_PROJECTS](./docs/REFERENCE_PROJECTS.md), [ROADMAP](./docs/ROADMAP.md)). Not required reading to start a workshop.
 
 ## How it works (one paragraph)
 
-A workshop is split in two: **content** (lessons, walker prose, rubrics) lives on a deployed MCP server we host; **code** (the codebase you edit) lives in a per-workshop *project* repo you clone once. The plugin in this repo handles the install and start. The project ships with its own `.mcp.json` and `.claude/settings.json`, so once you `cd` into it and run `claude`, the workshop greets you and walks the lessons. Server-side state means your progress survives across machines and sessions.
+A workshop is split in two: **content** (lessons, walker prose, rubrics) lives on a deployed MCP server we host; **code** (the codebase you edit) lives in a per-workshop *project* repo you clone once. `lwc start` sets the project up and opens it. The project ships with its own `.mcp.json` and `.claude/settings.json`, so Claude Code opens inside it and the workshop walks the lessons with you. Server-side state means your progress survives across machines and sessions.
 
 ## Status
 
