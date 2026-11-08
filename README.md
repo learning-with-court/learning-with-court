@@ -20,7 +20,7 @@ $script = iwr https://get.workshop.institute/install.ps1 -useb; Invoke-Expressio
 
 The line installs the `lwc` CLI and runs `lwc start <id>`. A browser tab then checks your computer, installs what the workshop needs, signs you in, and opens the workshop with the first lesson beside Claude Code. What happens at each step is at <https://workshop.institute/getting-started>.
 
-`lwc start` installs this marketplace's plugin itself, so you don't add it by hand. To come back to a workshop later, run `lwc start` in any terminal, and your workshops are listed.
+`lwc start` installs this marketplace's plugin itself, so you don't add it by hand. To come back to a workshop later, run `lwc start` in any terminal: it opens your workshop again, or lets you choose one if you have several.
 
 ## What's in this marketplace
 
