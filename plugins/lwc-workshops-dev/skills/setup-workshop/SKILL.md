@@ -98,7 +98,7 @@ What happens after they paste it, step by step, is at <https://workshop.institut
 
 If the user asks "what else can I do?":
 
-- `lwc start` — list your workshops and open one again
+- `lwc start` — open your workshop again, or choose one if you have several
 - `lwc list` — show installed workshops
 - `lwc refresh [<id>]` — pull workshop content updates
 - `lwc update` — self-update the `lwc` CLI itself
