@@ -114,12 +114,12 @@ This rule has two failure modes that get hit in practice and that you
 MUST avoid:
 
 1. **User says the install one-liner's example phrase verbatim** ("I'd like to
-   learn how to build an MCP server"). That phrase is anchoring copy
+   learn how to work with Claude Code"). That phrase is anchoring copy
    from the landing page — treat it like any other natural-language
    request. Run `lwc catalog`, see what's available, list candidates
-   if MCP-anything matches more than one workshop, ask. Do NOT
-   default-pick `mcp-workshop` without listing the catalog just
-   because the words "MCP server" are present.
+   if the phrase matches more than one workshop, ask. Do NOT
+   default-pick `claude-code-basics` without listing the catalog just
+   because the words "Claude Code" are present.
 2. **User says something generic** ("I'd like to start a workshop",
    "what workshops are there?", "let's begin"). Generic phrasing
    means intent isn't established. Run `lwc catalog`, list the
@@ -132,7 +132,7 @@ for that workshop, default-picking is fine. In every other case, ask.
 
 If `lwc env switch dev` is active, the catalog you fetch reflects the
 dev set. Mention the active env in your confirmation when it's not
-prod — e.g. "Setting up `evals-workshop` (from the dev catalog) at
+prod — e.g. "Setting up `git-basics` (from the dev catalog) at
 `<path>`." Get the active env from `lwc env current` if you need to
 double-check; the catalog's URL already reflects the same setting.
 
@@ -278,7 +278,7 @@ Resolve the install destination:
 
 Tell the user exactly where it's going in one line, e.g.:
 
-> "Setting up `mcp-workshop` at `<resolved-dest>`. First run opens a
+> "Setting up `claude-code-basics` at `<resolved-dest>`. First run opens a
 > browser for a one-time sign-in."
 
 Then run (always pass `--dir` so the destination is explicit and the CLI
@@ -299,7 +299,7 @@ If the CLI errors:
 - **"already exists and is not empty":** offer to run `lwc remove <id>` first or pick a different `--dir`.
 - **Sign-in timeout / failed:** ask them to retry; the browser may have closed early.
 - **"PROVISION_FAILED":** the platform couldn't mint a token. Surface the message verbatim.
-- **"ENTITLEMENT_ACCESS_REQUIRED":** this workshop is gated — access opens through an **event**, and this is an intentional, expected boundary, **not a bug to route around**. Do NOT switch environments, grant access, log into another account, or otherwise try to defeat it. Tell the learner plainly: this workshop opens through an event (share the events link from the error message), and the free **`sql-intro`** workshop is open to try right now if they'd like a taste of how the system works. Then stop — don't retry.
+- **"ENTITLEMENT_ACCESS_REQUIRED":** this workshop is gated — access opens through an **event**, and this is an intentional, expected boundary, **not a bug to route around**. Do NOT switch environments, grant access, log into another account, or otherwise try to defeat it. Tell the learner plainly: this workshop opens through an event (share the events link from the error message), and the free **`claude-code-basics`** workshop is open to try right now if they'd like a taste of how the system works. Then stop — don't retry.
 
 ### 4. Persist pace + signals
 
@@ -340,7 +340,7 @@ Print (substitute `<install-path>` with the actual resolved destination —
 the same one the CLI printed and that's stored in
 `~/.lwc/workshops.json`):
 
-> ✅ `mcp-workshop` installed at `<install-path>`. Pace set to **`<pace>`** — the workshop will adapt accordingly. To change later, edit `<install-path>/.claude/lwc-workshop.local.md` and set `pace:` to `slow`, `balanced`, or `quick`; restart the workshop session for it to take effect.
+> ✅ `claude-code-basics` installed at `<install-path>`. Pace set to **`<pace>`** — the workshop will adapt accordingly. To change later, edit `<install-path>/.claude/lwc-workshop.local.md` and set `pace:` to `slow`, `balanced`, or `quick`; restart the workshop session for it to take effect.
 >
 > To start the workshop, open a new terminal and run:
 >
